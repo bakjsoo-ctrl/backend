@@ -21,7 +21,6 @@
       rel="stylesheet"
       href="/Oulim/asset/css/pages/user/find-idpassword/password-reset.css"
     />
-    <script defer src="/Oulim/asset/js/pages/main/include.js"></script>
     <script
       defer
       src="/Oulim/asset/js/pages/user/find-idpassword/password-reset.js"
@@ -29,7 +28,7 @@
   </head>
 
   <body>
-    <div id="header"></div>
+    <jsp:include page="/app/include/header-nologin.jsp" />
     <div class="l-main">
       <div class="l-container">
         <div class="p-password-reset">
@@ -95,6 +94,6 @@
         </div>
       </div>
     </div>
-    <div id="footer"></div>
+    <jsp:include page="/app/include/footer.jsp" />
   </body>
 </html>

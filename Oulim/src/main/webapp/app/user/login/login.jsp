@@ -22,12 +22,11 @@
     <link rel="stylesheet" href="/Oulim/asset/css/core/layout.css" />
 
     <link rel="stylesheet" href="/Oulim/asset/css/pages/user/login/login.css" />
-    <script defer src="/Oulim/asset/js/pages/main/include.js"></script>
     <script defer src="/Oulim/asset/js/pages/user/login/login.js"></script>
   </head>
 
   <body>
-    <div id="header"></div>
+    <jsp:include page="/app/include/header-nologin.jsp" />
     <div class="l-main">
       <div class="l-container">
         <form action="/Oulim/main.html" method="get" id="loginForm">
@@ -86,6 +85,6 @@
         </form>
       </div>
     </div>
-    <div id="footer"></div>
+    <jsp:include page="/app/include/footer.jsp" />
   </body>
 </html>
