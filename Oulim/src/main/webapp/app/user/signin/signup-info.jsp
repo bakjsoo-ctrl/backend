@@ -20,7 +20,6 @@
       rel="stylesheet"
       href="/Oulim/asset/css/pages/user/signin/signup-info.css"
     />
-    <script defer src="/Oulim/asset/js/pages/main/include.js"></script>
     <script
       defer
       src="/Oulim/asset/js/pages/user/signin/signup-info.js"
@@ -28,7 +27,7 @@
   </head>
 
   <body>
-    <div id="header"></div>
+    <jsp:include page="/app/include/header-nologin.jsp" />
     <div class="l-main">
       <div class="l-container">
         <form action="/Oulim/front/html/user/signin/signup-complete.html">
@@ -128,6 +127,6 @@
         </form>
       </div>
     </div>
-    <div id="footer"></div>
+    <jsp:include page="/app/include/footer.jsp" />
   </body>
 </html>

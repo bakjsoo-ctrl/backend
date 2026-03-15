@@ -20,11 +20,10 @@
       rel="stylesheet"
       href="/Oulim/asset/css/pages/user/find-idpassword/id-find-view.css"
     />
-    <script defer src="/Oulim/asset/js/pages/main/include.js"></script>
   </head>
 
   <body>
-    <div id="header"></div>
+    <jsp:include page="/app/include/header-nologin.jsp" />
     <div class="l-main">
       <div class="l-container">
         <div class="p-id-find-view">
@@ -62,6 +61,6 @@
         </div>
       </div>
     </div>
-    <div id="footer"></div>
+    <jsp:include page="/app/include/footer.jsp" />
   </body>
 </html>

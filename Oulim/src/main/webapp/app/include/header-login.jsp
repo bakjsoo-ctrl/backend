@@ -22,7 +22,7 @@
     <div class="p-header-page">
       <div class="l-header-layout">
         <div class="l-header-right">
-          <img src="" alt="logo" />
+          <img src="${pageContext.request.contextPath}/asset/" alt="logo" />
           <div><a href="">봉사활동</a></div>
           <div><a href="">어울림터</a></div>
           <div><a href="">꼬미수련소</a></div>
