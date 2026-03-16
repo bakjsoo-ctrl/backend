@@ -28,11 +28,11 @@
 	</filter-mapping>
 	
 	<!-- LoginCheck 매핑 -->
- 	<filter>
+<!--  	<filter>
 		<filter-name>loginCheckFilter</filter-name>
 		<filter-class>com.oulim.app.common.filter.LoginCheckFilter</filter-class>
 	</filter>
-
+ -->
 <!--	<filter-mapping>
 		<filter-name>loginCheckFilter</filter-name>
 		<url-pattern>/app/mypage/*</url-pattern>
