@@ -3,6 +3,7 @@ package com.oulim.app.user.dao;
 import org.apache.ibatis.session.SqlSession;
 
 import com.oulim.app.config.MyBatisConfig;
+import com.oulim.app.user.dto.OrganDTO;
 import com.oulim.app.user.dto.UserDTO;
 
 
@@ -17,6 +18,18 @@ public class UserDAO {
     	sqlSession.insert("user.normaljoin", userDTO);
     }
     
+    public OrganDTO selectOrganByCertNum(String organCertNum) {
+        return sqlSession.selectOne("user.selectOrganByCertNum", organCertNum);
+    }
+
+    public void organjoin(UserDTO userDTO) {
+    	sqlSession.insert("user.organjoin", userDTO);
+    }
+    
+    public void insertorgan(OrganDTO organDTO) {
+    	sqlSession.insert("user.insertorgan", organDTO);
+    }
+    
     public UserDTO login(UserDTO userDTO) {
     	return sqlSession.selectOne("user.login", userDTO);
     }
@@ -25,4 +38,11 @@ public class UserDAO {
         return sqlSession.selectOne("user.findId", userDTO);
     }
     
+    public UserDTO findPw(UserDTO userDTO) {
+    	return sqlSession.selectOne("user.findPw", userDTO);
+    }
+    
+    public void updatePw(UserDTO userDTO) {
+    	sqlSession.update("user.updatePw", userDTO);
+    }
 }

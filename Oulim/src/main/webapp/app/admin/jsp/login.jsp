@@ -1,60 +1,71 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+pageEncoding="UTF-8"%> 
 <!doctype html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>로그인</title>
-
-    <!-- base css 필수 삽입-->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/core/reset.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/core/variable.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/core/Typography.css" />
-    <!-- 컨포넌트 css 선택-->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/pagination.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/input.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/button.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/list.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/card.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/DetailCard.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/badge.css" />
-
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/app/admin/css/login.css" />
-    <script defer src="${pageContext.request.contextPath}/app/admin/js/login.js"></script>
+    <!-- base css -->
+    <link
+      rel="stylesheet"
+      href="${pageContext.request.contextPath}/asset/css/core/reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="${pageContext.request.contextPath}/asset/css/core/variable.css"
+    />
+    <link
+      rel="stylesheet"
+      href="${pageContext.request.contextPath}/asset/css/core/Typography.css"
+    />
+    <!-- component css -->
+    <link
+      rel="stylesheet"
+      href="${pageContext.request.contextPath}/asset/css/component/input.css"
+    />
+    <link
+      rel="stylesheet"
+      href="${pageContext.request.contextPath}/asset/css/component/button.css"
+    />
+    <!-- page css -->
+    <link
+      rel="stylesheet"
+      href="${pageContext.request.contextPath}/app/admin/css/login.css"
+    />
+    <script
+      defer
+      src="${pageContext.request.contextPath}/app/admin/js/login.js"
+    ></script>
   </head>
-
   <body>
-    <!-- Header 자동 삽입 -->
-
-
     <main class="l-main">
-      <!-- <div class="login"> -->
       <div class="l-login-layout">
         <h1>
           어울림에<br />
           오신것을 환영합니다.
         </h1>
-        <form action="" method="POST">
-          <!-- 아이디입력 -->
+        <!-- 로그인 폼 -->
+        <form action="login" method="POST">
+          <!-- 아이디 -->
           <div class="l-login-input-layout">
-            <label for="userName">아이디</label>
+            <label for="adminId">아이디</label>
             <input
-              id="userName"
+              id="adminId"
               class="c-input"
-              name="userName"
+              name="adminId"
               placeholder="사번 또는 이메일을 입력하세요"
             />
           </div>
-          <!-- 비밀번호입력 -->
+          <!-- 비밀번호 -->
           <div class="l-login-input-layout">
-            <label for="userPw">비밀번호</label>
+            <label for="adminPw">비밀번호</label>
             <div class="pw-box-layout">
               <input
-                id="userPw"
+                id="adminPw"
                 type="password"
                 class="c-input"
-                name="userPw"
+                name="adminPw"
                 placeholder="비밀번호를 입력하세요"
               />
               <button type="button" id="c-password-btn-toggle">
@@ -65,11 +76,7 @@
                 />
               </button>
             </div>
-            <div id="is-user-login-error" class="is-error-text">
-              <span></span>
-            </div>
           </div>
-
           <!-- 로그인 버튼 -->
           <button class="c-button c-button--primary c-button--md" type="submit">
             로그인
@@ -80,8 +87,5 @@
         </div>
       </div>
     </main>
-
-    <!-- Footer 자동 삽입 -->
-
   </body>
 </html>
