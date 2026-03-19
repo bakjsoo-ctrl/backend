@@ -31,6 +31,11 @@ public class VolunManageDetailController implements Execute{
 		if (pageParam != null && !pageParam.equals("")) {
 			page = Integer.parseInt(pageParam);
 		}
+		
+		String view = request.getParameter("view");
+		if (view == null || view.trim().equals("")) {
+			view = "detail";
+		}
 
 		int rowCount = 10;
 		int endRow = page * rowCount;
@@ -54,6 +59,7 @@ public class VolunManageDetailController implements Execute{
 		request.setAttribute("rowCount", rowCount);
 		request.setAttribute("totalCount", totalCount);
 		request.setAttribute("lastPage", lastPage);
+		request.setAttribute("view", view);
 
 		result.setPath("/app/volunteer-management/volunteer-manage-detail.jsp");
 		result.setRedirect(false);

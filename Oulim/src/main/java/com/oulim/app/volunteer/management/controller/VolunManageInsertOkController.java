@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
 import com.oulim.app.volunteer.dto.VolunActivityDTO;
-import com.oulim.app.volunteer.management.service.VolunManageInsertService;
 
 public class VolunManageInsertOkController implements Execute {
 
@@ -19,7 +18,6 @@ public class VolunManageInsertOkController implements Execute {
 			throws ServletException, IOException {
 		Result result = new Result();
 		HttpSession session = request.getSession();
-		VolunManageInsertService service = new VolunManageInsertService();
 		Integer organNo = 1; // 테스트
 		// Integer organNo = (Integer) session.getAttribute("organNo");
 
@@ -68,7 +66,6 @@ public class VolunManageInsertOkController implements Execute {
 		}
 		
 		try {
-			service.insertVolunteer(dto);
 
 			result.setRedirect(true);
 			result.setPath(request.getContextPath() + "/volunteer-manage/list.vm");

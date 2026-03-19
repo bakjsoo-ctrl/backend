@@ -197,8 +197,8 @@
             #{volunActAgeGroup},
             #{volunActOrganNo},
             #{volunActAddress},
-            '-',
-            '000000',
+            #{volunActAddressDetail},
+            #{volunActPostnum},
             #{volunActRecruMaxCount},
             #{volunActDetail}
 	    )

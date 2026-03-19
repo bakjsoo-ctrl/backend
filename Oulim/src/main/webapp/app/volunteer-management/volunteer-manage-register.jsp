@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/select.css" />
 <script defer src="${pageContext.request.contextPath}/asset/js/pages/main/include.js"></script>
 <script defer src="${pageContext.request.contextPath}/asset/js/pages/volunteer-manage/volunteer-manage-register.js"></script>
+<script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 
 <body>
@@ -134,8 +135,32 @@
 					<div class="l-volunteer-manage-register_form-item">
 						<label class="l-volunteer-manage-register_form-label">봉사장소</label>
 						<div class="l-volunteer-manage-register_form-field">
-							<input type="text" id="volunActAddress" name="volunActAddress" class="c-input"
-								placeholder="장소를 입력해주세요." value="${volunteer.volunActAddress}" />
+							<div class="postcode-wrap">
+								<input type="text" id="volunActAddress" name="volunActAddress" class="c-input"
+									placeholder="장소를 입력해주세요." value="${volunteer.volunActAddress}" readonly />
+								<input type="button" id="searchPostcode"
+									class="c-button c-button--secondary c-button--md"
+									value="우편번호 찾기" onclick="sample4_execDaumPostcode()" />
+							</div>
+							<span id="guide" style="color:#999; display:none;"></span>
+							<input type="hidden" id="sample4_jibunAddress" />
+							<input type="hidden" id="sample4_extraAddress" />
+						</div>
+					</div>
+					
+					<div class="l-volunteer-manage-register_form-item">
+						<label class="l-volunteer-manage-register_form-label">상세주소</label>
+						<div class="l-volunteer-manage-register_form-field">
+							<input type="text" id="volunActAddressDetail" name="volunActAddressDetail" class="c-input"
+								placeholder="상세주소를 입력해주세요." value="${volunteer.volunActAddressDetail}" />
+						</div>
+					</div>
+					
+					<div class="l-volunteer-manage-register_form-item">
+						<label class="l-volunteer-manage-register_form-label">우편번호</label>
+						<div class="l-volunteer-manage-register_form-field">
+							<input type="text" id="volunActPostnum" name="volunActPostnum" class="c-input"
+								placeholder="우편번호를 입력해주세요." value="${volunteer.volunActPostnum}" readonly />
 						</div>
 					</div>
 
