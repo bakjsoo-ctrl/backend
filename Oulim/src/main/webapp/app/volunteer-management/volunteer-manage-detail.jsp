@@ -64,6 +64,7 @@
 					</span>
 					<span class="c-badge c-badge--orange" id="volunteerTarget">
 						<c:choose>
+							<c:when test="${volunDetail.volunActAgeGroup == 0}">전체</c:when>
 							<c:when test="${volunDetail.volunActAgeGroup == 1}">청소년</c:when>
 							<c:when test="${volunDetail.volunActAgeGroup == 2}">청년</c:when>
 							<c:when test="${volunDetail.volunActAgeGroup == 3}">직장인</c:when>
@@ -117,6 +118,7 @@
 						<span class="c-detail-card__label">봉사자연령</span>
 						<span class="c-detail-card__value" id="volunteerAge">
 							<c:choose>
+								<c:when test="${volunDetail.volunActAgeGroup == 0}">전체</c:when>
 								<c:when test="${volunDetail.volunActAgeGroup == 1}">청소년</c:when>
 								<c:when test="${volunDetail.volunActAgeGroup == 2}">청년</c:when>
 								<c:when test="${volunDetail.volunActAgeGroup == 3}">직장인</c:when>

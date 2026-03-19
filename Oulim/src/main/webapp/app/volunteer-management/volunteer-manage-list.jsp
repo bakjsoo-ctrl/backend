@@ -115,8 +115,8 @@
 											        <c:when test="${volunteer.volunActActType == 1}">환경</c:when>
 											        <c:when test="${volunteer.volunActActType == 2}">의료</c:when>
 											        <c:when test="${volunteer.volunActActType == 3}">교육</c:when>
-											        <c:when test="${volunteer.volunActActType == 4}">생활 편의</c:when>
-											        <c:when test="${volunteer.volunActActType == 5}">문화체육예술</c:when>
+											        <c:when test="${volunteer.volunActActType == 4}">생활·편의</c:when>
+											        <c:when test="${volunteer.volunActActType == 5}">문화·체육·예술</c:when>
 											        <c:when test="${volunteer.volunActActType == 6}">기타</c:when>
 											        <c:otherwise>-</c:otherwise>
 											    </c:choose>

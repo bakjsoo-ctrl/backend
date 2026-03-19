@@ -117,7 +117,7 @@
 								<option value="1" <c:if test="${volunteer.volunActActType == 1}">selected</c:if>>환경</option>
 								<option value="2" <c:if test="${volunteer.volunActActType == 2}">selected</c:if>>의료</option>
 								<option value="3" <c:if test="${volunteer.volunActActType == 3}">selected</c:if>>교육</option>
-								<option value="4" <c:if test="${volunteer.volunActActType == 4}">selected</c:if>>생활 편의</option>
+								<option value="4" <c:if test="${volunteer.volunActActType == 4}">selected</c:if>>생활·편의</option>
 								<option value="5" <c:if test="${volunteer.volunActActType == 5}">selected</c:if>>문화·체육·예술</option>
 								<option value="6" <c:if test="${volunteer.volunActActType == 6}">selected</c:if>>기타</option>
 							</select>
