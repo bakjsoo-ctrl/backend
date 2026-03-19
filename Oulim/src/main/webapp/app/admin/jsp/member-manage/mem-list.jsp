@@ -75,12 +75,11 @@
         </div>
         <div id="content-area">
           <select class="search-item">
-            <option>유저번호</option>
-            <option>아이디</option>
-            <option>닉네임</option>
-            <option>회원종류</option>
-            <option>가입일</option>
-            <option>이름</option>
+			<option value="userNo">유저번호</option>
+			<option value="userId">아이디</option>
+			<option value="userNickname">닉네임</option>
+			<option value="userType">회원종류</option>
+			<option value="userName">이름</option>
           </select>
           <input type="text" class="c-input" placeholder="검색 조건">
           <button class="c-button c-button--primary c-button--md">조회</button>
@@ -93,7 +92,6 @@
             <span class="c-list__col">아이디</span>
             <span class="c-list__col">닉네임</span>
             <span class="c-list__col">회원종류</span>
-            <span class="c-list__col">가입일</span>
             <span class="c-list__col">이름</span>
           </div>
           <!-- body -->
@@ -106,16 +104,13 @@
                 아무개
               </span>
               <span class="c-list__col memdetail">
-                제목입니다
+                치카치카
               </span>
               <span class="c-list__col memdetail">
-                2023-01-15
+                일반
               </span>
               <span class="c-list__col memdetail">
-                11
-              </span>
-              <span class="c-list__col memdetail">
-                1000
+                말순
               </span>
             </div>
             <div class="c-list__row">

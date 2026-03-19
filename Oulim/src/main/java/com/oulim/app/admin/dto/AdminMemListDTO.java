@@ -18,81 +18,92 @@ public class AdminMemListDTO {
 //	  User_Name VARCHAR2(20) NOT NULL,
 //	  User_Type NUMBER(1) NOT NULL,
 	  
-		private int userNo;
-		private String userId;
-		private String nickName;
-		private String userName;
-		private int userType;
-	  
-		
-		/**
-		 * @return the userNo
-		 */
-		private int getUserNo() {
-			return userNo;
-		}
-		/**
-		 * @param userNo the userNo to set
-		 */
-		private void setUserNo(int userNo) {
-			this.userNo = userNo;
-		}
-		/**
-		 * @return the userId
-		 */
-		private String getUserId() {
-			return userId;
-		}
-		/**
-		 * @param userId the userId to set
-		 */
-		private void setUserId(String userId) {
-			this.userId = userId;
-		}
-		/**
-		 * @return the nickName
-		 */
-		private String getNickName() {
-			return nickName;
-		}
-		/**
-		 * @param nickName the nickName to set
-		 */
-		private void setNickName(String nickName) {
-			this.nickName = nickName;
-		}
-		/**
-		 * @return the userName
-		 */
-		private String getUserName() {
-			return userName;
-		}
-		/**
-		 * @param userName the userName to set
-		 */
-		private void setUserName(String userName) {
-			this.userName = userName;
-		}
-		/**
-		 * @return the userType
-		 */
-		private int getUserType() {
-			return userType;
-		}
-		/**
-		 * @param userType the userType to set
-		 */
-		private void setUserType(int userType) {
-			this.userType = userType;
-		}
+    // 목록 출력용
+    private int userNo;               // 유저번호
+    private String userId;            // 아이디
+    private String userNickname;      // 닉네임
+    private String userName;          // 이름
+    private int userType;             // 회원종류 원본값
+    
+    private String userTypeText;      // 회원종류 화면출력용
 
-	  
-		@Override
-		public String toString() {
-			return "AdminMemListDTO [userNo=" + userNo + ", userId=" + userId + ", nickName=" + nickName + ", userName="
-					+ userName + ", userType=" + userType + "]";
-		}
-	  
+    // 검색용
+    private String searchType;        // userNo, userId, userNickname, userType, userName
+    private String keyword;           // 검색어
+
+    // 페이징용
+    private int startRow;
+    private int endRow;
+    
+    
+	public int getUserNo() {
+		return userNo;
+	}
+	public void setUserNo(int userNo) {
+		this.userNo = userNo;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	public String getUserNickname() {
+		return userNickname;
+	}
+	public void setUserNickname(String userNickname) {
+		this.userNickname = userNickname;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public int getUserType() {
+		return userType;
+	}
+	public void setUserType(int userType) {
+		this.userType = userType;
+	}
+	public String getUserTypeText() {
+		return userTypeText;
+	}
+	public void setUserTypeText(String userTypeText) {
+		this.userTypeText = userTypeText;
+	}
+	public String getSearchType() {
+		return searchType;
+	}
+	public void setSearchType(String searchType) {
+		this.searchType = searchType;
+	}
+	public String getKeyword() {
+		return keyword;
+	}
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
+	public int getStartRow() {
+		return startRow;
+	}
+	public void setStartRow(int startRow) {
+		this.startRow = startRow;
+	}
+	public int getEndRow() {
+		return endRow;
+	}
+	public void setEndRow(int endRow) {
+		this.endRow = endRow;
+	}
+	@Override
+	public String toString() {
+		return "AdminMemListDTO [userNo=" + userNo + ", userId=" + userId + ", userNickname=" + userNickname
+				+ ", userName=" + userName + ", userType=" + userType + ", userTypeText=" + userTypeText
+				+ ", searchType=" + searchType + ", keyword=" + keyword + ", startRow=" + startRow + ", endRow="
+				+ endRow + "]";
+	}
+
 	  
 	  
 	  

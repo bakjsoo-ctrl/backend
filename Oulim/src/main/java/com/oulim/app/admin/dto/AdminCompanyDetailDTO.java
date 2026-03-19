@@ -1,5 +1,6 @@
 package com.oulim.app.admin.dto;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 public class AdminCompanyDetailDTO {
@@ -27,148 +28,117 @@ public class AdminCompanyDetailDTO {
 //	  Organ_File_Original_Name VARCHAR2(300) NOT NULL,
 //	
 
+		
+	    private int userNo;                      // 회원번호
+	    private int organNo;                     // 기관번호
 
-private String organName;
-private String userName;
-private LocalDate userBirth;
-private int organCertNo;
-private String userEmail;
-private String userAddress;
-private int userNo;
-private int organNo;
-private String organFileSystemName;
-private String organFileOriginalName;
+	    private String organName;                // 기관명
+	    private String userName;                 // 이름
+	    private Date userBirth;                  // 생년월일
+	    private String organCertNum;             // 사업자 등록번호
+	    private String userEmail;                // 이메일
+	    private String userAddress;              // 주소
+	    private String userAddressDetail;        // 상세주소
 
+	    // 현재 스키마 기준 파일 1세트
+	    private String organFileSystemName;      // 서버 저장 파일명
+	    private String organFileOriginalName;    // 원본 파일명
 
-/**
- * @return the organName
- */
-private String getOrganName() {
-	return organName;
-}
-/**
- * @param organName the organName to set
- */
-private void setOrganName(String organName) {
-	this.organName = organName;
-}
-/**
- * @return the userName
- */
-private String getUserName() {
-	return userName;
-}
-/**
- * @param userName the userName to set
- */
-private void setUserName(String userName) {
-	this.userName = userName;
-}
-/**
- * @return the userBirth
- */
-private LocalDate getUserBirth() {
-	return userBirth;
-}
-/**
- * @param userBirth the userBirth to set
- */
-private void setUserBirth(LocalDate userBirth) {
-	this.userBirth = userBirth;
-}
-/**
- * @return the organCertNo
- */
-private int getOrganCertNo() {
-	return organCertNo;
-}
-/**
- * @param organCertNo the organCertNo to set
- */
-private void setOrganCertNo(int organCertNo) {
-	this.organCertNo = organCertNo;
-}
-/**
- * @return the userEmail
- */
-private String getUserEmail() {
-	return userEmail;
-}
-/**
- * @param userEmail the userEmail to set
- */
-private void setUserEmail(String userEmail) {
-	this.userEmail = userEmail;
-}
-/**
- * @return the userAddress
- */
-private String getUserAddress() {
-	return userAddress;
-}
-/**
- * @param userAddress the userAddress to set
- */
-private void setUserAddress(String userAddress) {
-	this.userAddress = userAddress;
-}
-/**
- * @return the userNo
- */
-private int getUserNo() {
-	return userNo;
-}
-/**
- * @param userNo the userNo to set
- */
-private void setUserNo(int userNo) {
-	this.userNo = userNo;
-}
-/**
- * @return the organNo
- */
-private int getOrganNo() {
-	return organNo;
-}
-/**
- * @param organNo the organNo to set
- */
-private void setOrganNo(int organNo) {
-	this.organNo = organNo;
-}
-/**
- * @return the organFileSystemName
- */
-private String getOrganFileSystemName() {
-	return organFileSystemName;
-}
-/**
- * @param organFileSystemName the organFileSystemName to set
- */
-private void setOrganFileSystemName(String organFileSystemName) {
-	this.organFileSystemName = organFileSystemName;
-}
-/**
- * @return the organFileOriginalName
- */
-private String getOrganFileOriginalName() {
-	return organFileOriginalName;
-}
-/**
- * @param organFileOriginalName the organFileOriginalName to set
- */
-private void setOrganFileOriginalName(String organFileOriginalName) {
-	this.organFileOriginalName = organFileOriginalName;
-}
+	    public int getUserNo() {
+	        return userNo;
+	    }
 
+	    public void setUserNo(int userNo) {
+	        this.userNo = userNo;
+	    }
 
-@Override
-public String toString() {
-	return "AdminCompanyDetailDTO [organName=" + organName + ", userName=" + userName + ", userBirth=" + userBirth
-			+ ", organCertNo=" + organCertNo + ", userEmail=" + userEmail + ", userAddress=" + userAddress + ", userNo="
-			+ userNo + ", organNo=" + organNo + ", organFileSystemName=" + organFileSystemName
-			+ ", organFileOriginalName=" + organFileOriginalName + "]";
-}
+	    public int getOrganNo() {
+	        return organNo;
+	    }
 
+	    public void setOrganNo(int organNo) {
+	        this.organNo = organNo;
+	    }
 
-}
+	    public String getOrganName() {
+	        return organName;
+	    }
+
+	    public void setOrganName(String organName) {
+	        this.organName = organName;
+	    }
+
+	    public String getUserName() {
+	        return userName;
+	    }
+
+	    public void setUserName(String userName) {
+	        this.userName = userName;
+	    }
+
+	    public Date getUserBirth() {
+	        return userBirth;
+	    }
+
+	    public void setUserBirth(Date userBirth) {
+	        this.userBirth = userBirth;
+	    }
+
+	    public String getOrganCertNum() {
+	        return organCertNum;
+	    }
+
+	    public void setOrganCertNum(String organCertNum) {
+	        this.organCertNum = organCertNum;
+	    }
+
+	    public String getUserEmail() {
+	        return userEmail;
+	    }
+
+	    public void setUserEmail(String userEmail) {
+	        this.userEmail = userEmail;
+	    }
+
+	    public String getUserAddress() {
+	        return userAddress;
+	    }
+
+	    public void setUserAddress(String userAddress) {
+	        this.userAddress = userAddress;
+	    }
+
+	    public String getUserAddressDetail() {
+	        return userAddressDetail;
+	    }
+
+	    public void setUserAddressDetail(String userAddressDetail) {
+	        this.userAddressDetail = userAddressDetail;
+	    }
+
+	    public String getOrganFileSystemName() {
+	        return organFileSystemName;
+	    }
+
+	    public void setOrganFileSystemName(String organFileSystemName) {
+	        this.organFileSystemName = organFileSystemName;
+	    }
+
+	    public String getOrganFileOriginalName() {
+	        return organFileOriginalName;
+	    }
+
+	    public void setOrganFileOriginalName(String organFileOriginalName) {
+	        this.organFileOriginalName = organFileOriginalName;
+	    }
+
+	    @Override
+	    public String toString() {
+	        return "AdminCompanyDetailDTO [userNo=" + userNo + ", organNo=" + organNo + ", organName=" + organName
+	                + ", userName=" + userName + ", userBirth=" + userBirth + ", organCertNum=" + organCertNum
+	                + ", userEmail=" + userEmail + ", userAddress=" + userAddress
+	                + ", userAddressDetail=" + userAddressDetail
+	                + ", organFileSystemName=" + organFileSystemName
+	                + ", organFileOriginalName=" + organFileOriginalName + "]";
+	    }
+	}

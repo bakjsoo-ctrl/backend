@@ -74,6 +74,11 @@ public class AdminFrontController extends HttpServlet {
 			System.out.println("로그아웃 요청");
 			result = new AdminLogoutController().execute(request, response);
 			break;
+			
+		case "/admin/dashboard.adm":
+		    System.out.println("대시보드 요청");
+		    result = new AdminDashboardController().execute(request, response);
+		    break;	
 		
 		}
 

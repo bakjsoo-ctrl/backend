@@ -1,5 +1,6 @@
 package com.oulim.app.admin.dto;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 public class AdminVolunDetailDTO {
@@ -26,172 +27,93 @@ public class AdminVolunDetailDTO {
 	private int volunActBeginTime;
 	private int volunActEndTime;
 	private String volunActAddress;
-	private LocalDate volunActProcBegin;
-	private LocalDate volunActProcEnd;
-	private LocalDate volunActRecruBegin;
-	private LocalDate volunActRecruEnd;
+	private Date volunActProcBegin;
+	private Date volunActProcEnd;
+	private Date volunActRecruBegin;
+	private Date volunActRecruEnd;
 	private int volunActRecruMaxCount;
 	private int volunActPoint;
 	private int volunActAgeGroup;
 	private int volunActNo;
 	private int userNo;
-	/**
-	 * @return the volunActTitle
-	 */
-	private String getVolunActTitle() {
+	public String getVolunActTitle() {
 		return volunActTitle;
 	}
-	/**
-	 * @param volunActTitle the volunActTitle to set
-	 */
-	private void setVolunActTitle(String volunActTitle) {
+	public void setVolunActTitle(String volunActTitle) {
 		this.volunActTitle = volunActTitle;
 	}
-	/**
-	 * @return the volunActBeginTime
-	 */
-	private int getVolunActBeginTime() {
+	public int getVolunActBeginTime() {
 		return volunActBeginTime;
 	}
-	/**
-	 * @param volunActBeginTime the volunActBeginTime to set
-	 */
-	private void setVolunActBeginTime(int volunActBeginTime) {
+	public void setVolunActBeginTime(int volunActBeginTime) {
 		this.volunActBeginTime = volunActBeginTime;
 	}
-	/**
-	 * @return the volunActEndTime
-	 */
-	private int getVolunActEndTime() {
+	public int getVolunActEndTime() {
 		return volunActEndTime;
 	}
-	/**
-	 * @param volunActEndTime the volunActEndTime to set
-	 */
-	private void setVolunActEndTime(int volunActEndTime) {
+	public void setVolunActEndTime(int volunActEndTime) {
 		this.volunActEndTime = volunActEndTime;
 	}
-	/**
-	 * @return the volunActAddress
-	 */
-	private String getVolunActAddress() {
+	public String getVolunActAddress() {
 		return volunActAddress;
 	}
-	/**
-	 * @param volunActAddress the volunActAddress to set
-	 */
-	private void setVolunActAddress(String volunActAddress) {
+	public void setVolunActAddress(String volunActAddress) {
 		this.volunActAddress = volunActAddress;
 	}
-	/**
-	 * @return the volunActProcBegin
-	 */
-	private LocalDate getVolunActProcBegin() {
+	public Date getVolunActProcBegin() {
 		return volunActProcBegin;
 	}
-	/**
-	 * @param volunActProcBegin the volunActProcBegin to set
-	 */
-	private void setVolunActProcBegin(LocalDate volunActProcBegin) {
+	public void setVolunActProcBegin(Date volunActProcBegin) {
 		this.volunActProcBegin = volunActProcBegin;
 	}
-	/**
-	 * @return the volunActProcEnd
-	 */
-	private LocalDate getVolunActProcEnd() {
+	public Date getVolunActProcEnd() {
 		return volunActProcEnd;
 	}
-	/**
-	 * @param volunActProcEnd the volunActProcEnd to set
-	 */
-	private void setVolunActProcEnd(LocalDate volunActProcEnd) {
+	public void setVolunActProcEnd(Date volunActProcEnd) {
 		this.volunActProcEnd = volunActProcEnd;
 	}
-	/**
-	 * @return the volunActRecruBegin
-	 */
-	private LocalDate getVolunActRecruBegin() {
+	public Date getVolunActRecruBegin() {
 		return volunActRecruBegin;
 	}
-	/**
-	 * @param volunActRecruBegin the volunActRecruBegin to set
-	 */
-	private void setVolunActRecruBegin(LocalDate volunActRecruBegin) {
+	public void setVolunActRecruBegin(Date volunActRecruBegin) {
 		this.volunActRecruBegin = volunActRecruBegin;
 	}
-	/**
-	 * @return the volunActRecruEnd
-	 */
-	private LocalDate getVolunActRecruEnd() {
+	public Date getVolunActRecruEnd() {
 		return volunActRecruEnd;
 	}
-	/**
-	 * @param volunActRecruEnd the volunActRecruEnd to set
-	 */
-	private void setVolunActRecruEnd(LocalDate volunActRecruEnd) {
+	public void setVolunActRecruEnd(Date volunActRecruEnd) {
 		this.volunActRecruEnd = volunActRecruEnd;
 	}
-	/**
-	 * @return the volunActRecruMaxCount
-	 */
-	private int getVolunActRecruMaxCount() {
+	public int getVolunActRecruMaxCount() {
 		return volunActRecruMaxCount;
 	}
-	/**
-	 * @param volunActRecruMaxCount the volunActRecruMaxCount to set
-	 */
-	private void setVolunActRecruMaxCount(int volunActRecruMaxCount) {
+	public void setVolunActRecruMaxCount(int volunActRecruMaxCount) {
 		this.volunActRecruMaxCount = volunActRecruMaxCount;
 	}
-	/**
-	 * @return the volunActPoint
-	 */
-	private int getVolunActPoint() {
+	public int getVolunActPoint() {
 		return volunActPoint;
 	}
-	/**
-	 * @param volunActPoint the volunActPoint to set
-	 */
-	private void setVolunActPoint(int volunActPoint) {
+	public void setVolunActPoint(int volunActPoint) {
 		this.volunActPoint = volunActPoint;
 	}
-	/**
-	 * @return the volunActAgeGroup
-	 */
-	private int getVolunActAgeGroup() {
+	public int getVolunActAgeGroup() {
 		return volunActAgeGroup;
 	}
-	/**
-	 * @param volunActAgeGroup the volunActAgeGroup to set
-	 */
-	private void setVolunActAgeGroup(int volunActAgeGroup) {
+	public void setVolunActAgeGroup(int volunActAgeGroup) {
 		this.volunActAgeGroup = volunActAgeGroup;
 	}
-	/**
-	 * @return the volunActNo
-	 */
-	private int getVolunActNo() {
+	public int getVolunActNo() {
 		return volunActNo;
 	}
-	/**
-	 * @param volunActNo the volunActNo to set
-	 */
-	private void setVolunActNo(int volunActNo) {
+	public void setVolunActNo(int volunActNo) {
 		this.volunActNo = volunActNo;
 	}
-	/**
-	 * @return the userNo
-	 */
-	private int getUserNo() {
+	public int getUserNo() {
 		return userNo;
 	}
-	/**
-	 * @param userNo the userNo to set
-	 */
-	private void setUserNo(int userNo) {
+	public void setUserNo(int userNo) {
 		this.userNo = userNo;
 	}
-	
 	@Override
 	public String toString() {
 		return "AdminVolunDetailDTO [volunActTitle=" + volunActTitle + ", volunActBeginTime=" + volunActBeginTime
@@ -201,6 +123,7 @@ public class AdminVolunDetailDTO {
 				+ ", volunActRecruMaxCount=" + volunActRecruMaxCount + ", volunActPoint=" + volunActPoint
 				+ ", volunActAgeGroup=" + volunActAgeGroup + ", volunActNo=" + volunActNo + ", userNo=" + userNo + "]";
 	}
+	
 	  
 	
 	

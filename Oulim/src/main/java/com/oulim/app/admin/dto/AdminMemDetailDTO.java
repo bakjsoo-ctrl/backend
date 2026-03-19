@@ -16,80 +16,79 @@ public class AdminMemDetailDTO {
 //	  User_Address VARCHAR2(50),
 //	  Total_Amount NUMBER DEFAULT 0 NOT NULL,
 	 
-		private String userName;
-		private String userID;
-		private String userNickname;
-		private String userAddress;
-		private int totalAmount;
-	 
-		/**
-		 * @return the userName
-		 */
-		private String getUserName() {
-			return userName;
-		}
-		/**
-		 * @param userName the userName to set
-		 */
-		private void setUserName(String userName) {
-			this.userName = userName;
-		}
-		/**
-		 * @return the userID
-		 */
-		private String getUserID() {
-			return userID;
-		}
-		/**
-		 * @param userID the userID to set
-		 */
-		private void setUserID(String userID) {
-			this.userID = userID;
-		}
-		/**
-		 * @return the userNickname
-		 */
-		private String getUserNickname() {
-			return userNickname;
-		}
-		/**
-		 * @param userNickname the userNickname to set
-		 */
-		private void setUserNickname(String userNickname) {
-			this.userNickname = userNickname;
-		}
-		/**
-		 * @return the userAddress
-		 */
-		private String getUserAddress() {
-			return userAddress;
-		}
-		/**
-		 * @param userAddress the userAddress to set
-		 */
-		private void setUserAddress(String userAddress) {
-			this.userAddress = userAddress;
-		}
-		/**
-		 * @return the totalAmount
-		 */
-		private int getTotalAmount() {
-			return totalAmount;
-		}
-		/**
-		 * @param totalAmount the totalAmount to set
-		 */
-		private void setTotalAmount(int totalAmount) {
-			this.totalAmount = totalAmount;
-		}
-	 
-		@Override
-		public String toString() {
-			return "AdminMemDetailDTO [userName=" + userName + ", userID=" + userID + ", userNickname=" + userNickname
-					+ ", userAddress=" + userAddress + ", totalAmount=" + totalAmount + "]";
-		}
-	 
-	 
+    // 회원 기본 정보
+    private int userNo;                  // 회원번호
+    private String userName;             // 이름
+    private String userId;               // 아이디
+    private String userNickname;         // 닉네임
+    private String userAddress;          // 주소
+    private String userAddressDetail;    // 상세주소
+
+    // 포인트 정보
+    private int totalAmount;             // 보유포인트
+
+	public int getUserNo() {
+		return userNo;
+	}
+
+	public void setUserNo(int userNo) {
+		this.userNo = userNo;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getUserNickname() {
+		return userNickname;
+	}
+
+	public void setUserNickname(String userNickname) {
+		this.userNickname = userNickname;
+	}
+
+	public String getUserAddress() {
+		return userAddress;
+	}
+
+	public void setUserAddress(String userAddress) {
+		this.userAddress = userAddress;
+	}
+
+	public String getUserAddressDetail() {
+		return userAddressDetail;
+	}
+
+	public void setUserAddressDetail(String userAddressDetail) {
+		this.userAddressDetail = userAddressDetail;
+	}
+
+	public int getTotalAmount() {
+		return totalAmount;
+	}
+
+	public void setTotalAmount(int totalAmount) {
+		this.totalAmount = totalAmount;
+	}
+
+	@Override
+	public String toString() {
+		return "AdminMemDetailDTO [userNo=" + userNo + ", userName=" + userName + ", userId=" + userId
+				+ ", userNickname=" + userNickname + ", userAddress=" + userAddress + ", userAddressDetail="
+				+ userAddressDetail + ", totalAmount=" + totalAmount + "]";
+	}
 	 
 	 
 	 

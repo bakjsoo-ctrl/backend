@@ -2,7 +2,7 @@ package com.oulim.app.admin.dto;
 
 import java.time.LocalDate;
 
-public class AdminMemEditDTO {
+public class AdminMemPointDTO {
 
 //	보유포인트
 //	포인트지급차감이유(입력)
