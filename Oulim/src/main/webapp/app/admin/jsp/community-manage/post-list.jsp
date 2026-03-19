@@ -77,12 +77,9 @@
         </div>
         <div id="content-area">
           <select class="search-item">
-            <option>게시글 번호</option>
             <option>닉네임</option>
             <option>게시글 제목</option>
             <option>작성일</option>
-            <option>추천수</option>
-            <option>조회수</option>
           </select>
           <input type="text" class="c-input" placeholder="검색 조건">
           <button class="c-button c-button--primary c-button--md">조회</button>

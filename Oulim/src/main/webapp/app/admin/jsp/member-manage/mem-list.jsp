@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/card.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/DetailCard.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/badge.css" />
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/app/admin/css/mem-list/mem-list.css" />
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/app/admin/css/member-manage/mem-list.css" />
 
 </head>
 

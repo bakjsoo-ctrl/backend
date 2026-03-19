@@ -20,8 +20,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/card.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/DetailCard.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/badge.css" />
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/app/admin/css/company-certification/company-certification.css" />
-  <script defer src="${pageContext.request.contextPath}/app/admin/js/company-certification/company-certification.js"></script>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/app/admin/css/member-manage/company-certification.css" />
+  <script defer src="${pageContext.request.contextPath}/app/admin/js/member-manage/company-certification.js"></script>
 </head>
 
 <body>
