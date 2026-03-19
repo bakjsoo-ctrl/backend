@@ -15,6 +15,16 @@
     margin: 30px 0;
 }
 
+.l-signup-verify-number-layout{
+    display: flex;
+    padding: 10px 0;
+    gap: 10px;
+}
+
+.l-signup-verify-number-layout {
+	display: flex;
+	gap:10px;
+}
 .c-signup-verify-company-input{
     width: 500px;
 }
@@ -32,15 +42,18 @@
 
 }
 
+.l-signup-info-company-input-layout {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
 .l-signup-verify-company-number-layout{
     display: flex;
     padding: 10px 0;
     gap: 10px;
 }
-.l-signup-verify-company-number-layout div:first-child{
-    display: flex;
-    position: relative;
-}
+
 .l-signup-verify-company-number-layout div:first-child input{
     
     width: 300px;
@@ -51,12 +64,29 @@
 
 .l-signup-verify-company-number-layout div:last-child button{
     width:100px;
+    white-space: nowrap;
 }
-.c-signup-verify-company-numbertime{
+.l-signup-verify-number-layout div:first-child,
+.l-signup-verify-company-number-layout div:first-child {
+    position: relative;
+    width: 300px;
+}
+
+.l-signup-verify-number-layout div:first-child input,
+.l-signup-verify-company-number-layout div:first-child input {
+    width: 100%;
+    padding-right: 50px; /* 타이머 들어갈 자리 */
+}
+
+.c-signup-verify-numbertime,
+.c-signup-verify-company-numbertime {
     position: absolute;
-    top: 10px;
-    right: 5px;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
+
 .c-signup-verify-company-nextbtn button{
     width: 100%;
     margin-bottom: 50px;
@@ -93,4 +123,8 @@
 
 .c-input.is-error{
   border: 1px solid red;
+}
+
+.is-success-text {
+  color: #51AF01 !important;
 }
