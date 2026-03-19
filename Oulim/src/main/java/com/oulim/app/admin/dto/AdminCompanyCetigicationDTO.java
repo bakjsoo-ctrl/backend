@@ -1,5 +1,7 @@
 package com.oulim.app.admin.dto;
 
+import java.sql.Date;
+
 public class AdminCompanyCetigicationDTO {
 //	유저번호
 //	회사명
@@ -16,64 +18,78 @@ public class AdminCompanyCetigicationDTO {
 //	
 //	  Organ_No NUMBER
 	
-	private int userNo;
-	private String organName;
-	private String userId;
-	private int organNo;
+
+   
+    private int userNo;              // 유저번호
+    private String organName;        // 회사명
+    private String userId;           // 아이디
+    private Date userJoinDate;       // 가입일
+    private String organCertNum;     // 회사코드(사업자등록번호/기관인증번호)
+
+    private int startRow;
+    private int endRow;
+
+    public int getUserNo() {
+        return userNo;
+    }
+
+    public void setUserNo(int userNo) {
+        this.userNo = userNo;
+    }
+
+    public String getOrganName() {
+        return organName;
+    }
+
+    public void setOrganName(String organName) {
+        this.organName = organName;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Date getUserJoinDate() {
+        return userJoinDate;
+    }
+
+    public void setUserJoinDate(Date userJoinDate) {
+        this.userJoinDate = userJoinDate;
+    }
+
+    public String getOrganCertNum() {
+        return organCertNum;
+    }
+
+    public void setOrganCertNum(String organCertNum) {
+        this.organCertNum = organCertNum;
+    }
+
+    public int getStartRow() {
+        return startRow;
+    }
+
+    public void setStartRow(int startRow) {
+        this.startRow = startRow;
+    }
+
+    public int getEndRow() {
+        return endRow;
+    }
+
+    public void setEndRow(int endRow) {
+        this.endRow = endRow;
+    }
+
+    @Override
+    public String toString() {
+        return "AdminCompanyListDTO [userNo=" + userNo + ", organName=" + organName + ", userId=" + userId
+                + ", userJoinDate=" + userJoinDate + ", organCertNum=" + organCertNum
+                + ", startRow=" + startRow + ", endRow=" + endRow + "]";
+    }
 	
-	
-	/**
-	 * @return the userNo
-	 */
-	private int getUserNo() {
-		return userNo;
-	}
-	/**
-	 * @param userNo the userNo to set
-	 */
-	private void setUserNo(int userNo) {
-		this.userNo = userNo;
-	}
-	/**
-	 * @return the organName
-	 */
-	private String getOrganName() {
-		return organName;
-	}
-	/**
-	 * @param organName the organName to set
-	 */
-	private void setOrganName(String organName) {
-		this.organName = organName;
-	}
-	/**
-	 * @return the userId
-	 */
-	private String getUserId() {
-		return userId;
-	}
-	/**
-	 * @param userId the userId to set
-	 */
-	private void setUserId(String userId) {
-		this.userId = userId;
-	}
-	/**
-	 * @return the organNo
-	 */
-	private int getOrganNo() {
-		return organNo;
-	}
-	/**
-	 * @param organNo the organNo to set
-	 */
-	private void setOrganNo(int organNo) {
-		this.organNo = organNo;
-	}
-	
-	@Override
-	public String toString() {
-		return "AdminCompanyCetigicationDTO [userNo=" + userNo + ", organName=" + organName + ", userId=" + userId
-				+ ", organNo=" + organNo + "]";
-	}
 }

@@ -5,9 +5,9 @@
 
 <mapper namespace="adminCompany">
 
-    <!-- ========================================= -->
+
     <!-- 1. 기업회원 승인 목록 조회 -->
-    <!-- ========================================= -->
+
     <select id="selectList"
             parameterType="com.oulim.app.admin.dto.AdminCompanyListDTO"
             resultType="com.oulim.app.admin.dto.AdminCompanyListDTO">
@@ -34,9 +34,8 @@
     </select>
 
 
-    <!-- ========================================= -->
     <!-- 2. 기업회원 총 개수 (페이지네이션용) -->
-    <!-- ========================================= -->
+  
     <select id="selectCount"
             resultType="int">
         <![CDATA[
@@ -48,9 +47,9 @@
     </select>
 
 
-    <!-- ========================================= -->
+
     <!-- 3. 기업회원 상세 조회 -->
-    <!-- ========================================= -->
+
     <select id="selectDetail"
             parameterType="int"
             resultType="com.oulim.app.admin.dto.AdminCompanyDetailDTO">
@@ -77,9 +76,9 @@
     </select>
 
 
-    <!-- ========================================= -->
+
     <!-- 4. 기업회원 승인 처리 -->
-    <!-- ========================================= -->
+
     <update id="approveCompany"
             parameterType="int">
         <![CDATA[
@@ -90,9 +89,8 @@
     </update>
 
 
-    <!-- ========================================= -->
     <!-- 5. 기업회원 반려 처리 -->
-    <!-- ========================================= -->
+
     <update id="rejectCompany"
             parameterType="int">
         <![CDATA[
