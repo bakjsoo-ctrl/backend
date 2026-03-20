@@ -16,6 +16,8 @@ public class VolunApplyDTO {
 	private int volunActAttendance;
 	private String userName;	//이름
 	private String userBirth;	//생년월일
+	private String userAge;		// 나이
+	private int currentCount;	// 날짜 계산용
 	
 	public int getVolunActNo() {
 		return volunActNo;
@@ -59,13 +61,24 @@ public class VolunApplyDTO {
 	public void setUserBirth(String userBirth) {
 		this.userBirth = userBirth;
 	}
+	public String getUserAge() {
+		return userAge;
+	}
+	public void setUserAge(String userAge) {
+		this.userAge = userAge;
+	}
+	public int getCurrentCount() {
+		return currentCount;
+	}
+	public void setCurrentCount(int currentCount) {
+		this.currentCount = currentCount;
+	}
 	@Override
 	public String toString() {
 		return "VolunApplyDTO [volunActNo=" + volunActNo + ", userNo=" + userNo + ", volunActApplyDate="
 				+ volunActApplyDate + ", volunActApplyStatus=" + volunActApplyStatus + ", volunActAttendance="
-				+ volunActAttendance + ", userName=" + userName + ", userBirth=" + userBirth + "]";
+				+ volunActAttendance + ", userName=" + userName + ", userBirth=" + userBirth + ", userAge=" + userAge
+				+ ", currentCount=" + currentCount + "]";
 	}
-	
-	
 	
 }

@@ -9,43 +9,75 @@ import javax.servlet.http.HttpSession;
 
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
-import com.oulim.app.volunteer.dao.VolunteerMangementDAO;
 import com.oulim.app.volunteer.dto.VolunActivityDTO;
+import com.oulim.app.volunteer.management.service.VolunManageInsertService;
 
-public class VolunManageInsertOkController implements Execute{
+public class VolunManageInsertOkController implements Execute {
 
 	@Override
 	public Result execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println("봉사 등록 처리 컨트롤러 이동 완료");
-		VolunteerMangementDAO volunteerMangementDAO = new VolunteerMangementDAO();
-		VolunActivityDTO volunActivityDTO = new VolunActivityDTO();
+
 		Result result = new Result();
 		HttpSession session = request.getSession();
-		
-//		Integer organNo = (Integer) session.getAttribute("organNo");
-		Integer organNo=1;	//테스트
-		
+
+		Integer organNo = 1; // 테스트
+		// Integer organNo = (Integer) session.getAttribute("organNo");
+
+		VolunActivityDTO volunActivityDTO = new VolunActivityDTO();
+
 		volunActivityDTO.setVolunActTitle(request.getParameter("volunActTitle"));
 		volunActivityDTO.setVolunActRecruBegin(request.getParameter("volunActRecruBegin"));
 		volunActivityDTO.setVolunActRecruEnd(request.getParameter("volunActRecruEnd"));
 		volunActivityDTO.setVolunActProcBegin(request.getParameter("volunActProcBegin"));
 		volunActivityDTO.setVolunActProcEnd(request.getParameter("volunActProcEnd"));
-		volunActivityDTO.setVolunActPoint(Integer.parseInt(request.getParameter("volunActPoint")));
-		volunActivityDTO.setVolunActBeginTime(Integer.parseInt(request.getParameter("volunActBeginTime")));
-		volunActivityDTO.setVolunActEndTime(Integer.parseInt(request.getParameter("volunActEndTime")));
-		volunActivityDTO.setVolunActActType(Integer.parseInt(request.getParameter("volunActActType")));
-		volunActivityDTO.setVolunActAgeGroup(Integer.parseInt(request.getParameter("volunActAgeGroup")));
-		volunActivityDTO.setVolunActOrganNo(organNo);
 		volunActivityDTO.setVolunActAddress(request.getParameter("volunActAddress"));
-		volunActivityDTO.setVolunActRecruMaxCount(Integer.parseInt(request.getParameter("volunActRecruMaxCount")));
+		volunActivityDTO.setVolunActAddressDetail(request.getParameter("volunActAddressDetail"));
 		volunActivityDTO.setVolunActDetail(request.getParameter("volunActDetail"));
+		volunActivityDTO.setVolunActPostnum(request.getParameter("volunActPostnum"));
+		volunActivityDTO.setVolunActOrganNo(organNo);
 
-		volunteerMangementDAO.volActivityInsert(volunActivityDTO);
-		result.setPath(request.getContextPath() + "/volunteer-manage/list.vm");
-		result.setRedirect(true);
+		String point = request.getParameter("volunActPoint");
+		String beginTime = request.getParameter("volunActBeginTime");
+		String endTime = request.getParameter("volunActEndTime");
+		String actType = request.getParameter("volunActActType");
+		String ageGroup = request.getParameter("volunActAgeGroup");
+		String maxCount = request.getParameter("volunActRecruMaxCount");
 		
+		System.out.println(volunActivityDTO);
+		try {
+			volunActivityDTO.setVolunActPoint(Integer.parseInt(point));
+			volunActivityDTO.setVolunActBeginTime(Integer.parseInt(beginTime));
+			volunActivityDTO.setVolunActEndTime(Integer.parseInt(endTime));
+			volunActivityDTO.setVolunActActType(Integer.parseInt(actType));
+			volunActivityDTO.setVolunActAgeGroup(Integer.parseInt(ageGroup));
+			volunActivityDTO.setVolunActRecruMaxCount(Integer.parseInt(maxCount));
+		} catch (NumberFormatException | NullPointerException e) {
+			request.setAttribute("errorMessage", "숫자 또는 선택 항목을 다시 확인해주세요.");
+			request.setAttribute("volunteer", volunActivityDTO);
+			result.setRedirect(false);
+			result.setPath("/app/volunteer-manage/volunteer-manage-register.jsp");
+			return result;
+		}
+
+		try {
+			VolunManageInsertService service = new VolunManageInsertService();
+			service.insertVolunteer(volunActivityDTO);
+
+			result.setRedirect(true);
+			result.setPath(request.getContextPath() + "/volunteer-manage/list.vm");
+		} catch (IllegalArgumentException e) {
+			request.setAttribute("errorMessage", e.getMessage());
+			request.setAttribute("volunteer", volunActivityDTO);
+			result.setRedirect(false);
+			result.setPath("/app/volunteer-manage/volunteer-manage-register.jsp");
+		} catch (Exception e) {
+			request.setAttribute("errorMessage", "등록 중 오류가 발생했습니다.");
+			request.setAttribute("volunteer", volunActivityDTO);
+			result.setRedirect(false);
+			result.setPath("/app/volunteer-manage/volunteer-manage-register.jsp");
+		}
+
 		return result;
 	}
-
 }

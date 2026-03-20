@@ -1,6 +1,7 @@
 package com.oulim.app.mypage.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -17,13 +18,10 @@ public class MyPageJoinDAO {
 	
 //	1. 마이페이지 진입
 	
-//	public boolean enterMyPage(int userNo) {
-//		return (Integer)(sqlSession.selectOne("mypage.enterMyPage", userNo)) == 1;
-//	}
-	
-	public String enterMyPage1(int userNo) {
-		return sqlSession.selectOne("mypage.enterMyPage", userNo);
+	public boolean enterMyPage(int userNo) {
+		return (Integer)(sqlSession.selectOne("mypage.enterMyPage", userNo)) == 1;
 	}
+	
 	
 //	2. 내 정보 보기
 	
@@ -42,16 +40,16 @@ public class MyPageJoinDAO {
 
 //	2-1. 완료봉사, 예정봉사, 포인트 획득 간소화한 정보 조회
 	
-	public MyPageJoinDTO miniPoint(int userNo) {
-		return sqlSession.selectOne("mypage.miniPoint");
+	public List<MyPageJoinDTO> miniPoint(int userNo) {
+		return sqlSession.selectList("mypage.miniPoint", userNo);
 	}
 
 	public MyPageJoinDTO miniComVol(int userNo) {
-		return sqlSession.selectOne("mypage.miniComVol");
+		return sqlSession.selectOne("mypage.miniComVol", userNo);
 	}
 
 	public MyPageJoinDTO miniFinVol(int userNo) {
-		return sqlSession.selectOne("mypage.miniFinVol");
+		return sqlSession.selectOne("mypage.miniFinVol", userNo);
 	}
 	
 	
@@ -97,9 +95,14 @@ public class MyPageJoinDAO {
 	
 //	6. 작성 글 조회
 	
-	public List<MyPageJoinDTO> viewMyPost(int userNo) {
-		return sqlSession.selectList("mypage.mypost", userNo);
-		
+	// 리스트 조회 (페이징)
+	public List<MyPageJoinDTO> viewMyPost(Map<String, Object> pageMap) {
+	    return sqlSession.selectList("mypage.mypost", pageMap);
+	}
+
+	// 전체 개수
+	public int getMyPostTotal(int userNo) {
+	    return sqlSession.selectOne("mypage.getMyPostTotal", userNo);
 	}
 	
 //	7. 회원탈퇴

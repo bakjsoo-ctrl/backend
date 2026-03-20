@@ -27,16 +27,24 @@ public class MyPageComingVolunController implements Execute {
 
 		Integer userNo = (Integer) session.getAttribute("userNo");
 		
-		List<MyPageJoinDTO> comingVolun = mypageDAO.comingVolun(userNo);
+		List<MyPageJoinDTO> comingVolun = mypageDAO.comingVolun(userNo); // 맵으로 바꿔야함
 		
-		if(comingVolun != null) {
+	      if(request.getSession().getAttribute("userNo") == null) {
+	          result.setPath(request.getContextPath() + "/app/user/login/login.jsp");
+	          result.setRedirect(true);
+	          return result;
+	       }
+		
+//		if(comingVolun != null) {
 			path = "/app/mypage/volunteer-history/coming-volunteer.jsp";
 			result.setPath(path);
 			result.setRedirect(false);
-		}
+//		}
+		
+		request.setAttribute("comingVolun", comingVolun);
 		
 
-		return null;
+		return result;
 	}
 
 }
