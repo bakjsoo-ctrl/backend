@@ -34,6 +34,7 @@ public class AdminDTO {
 	public String getAdminPw() {
 		return adminPw;
 	}
+
 	public void setAdminPw(String adminPw) {
 		this.adminPw = adminPw;
 	}
@@ -43,13 +44,12 @@ public class AdminDTO {
 	public void setAdminEmail(String adminEmail) {
 		this.adminEmail = adminEmail;
 	}
+	
 	@Override
 	public String toString() {
-		return "AdminDTO [adminNum=" + adminNo + ", adminId=" + adminId + ", adminPw=" + adminPw + ", adminEmail="
+		return "AdminDTO [adminNo=" + adminNo + ", adminId=" + adminId + ", adminPw=" + adminPw + ", adminEmail="
 				+ adminEmail + "]";
 	}
-	
-	
 
-	
+
 }
