@@ -38,19 +38,19 @@ public class AdmVolManDetaController implements Execute {
             System.out.println("❌ volunActNo 파싱 실패 → 기본값 4 사용");
         }
 
-        System.out.println("👉 volunActNo: " + volunActNo);
+        System.out.println("volunActNo: " + volunActNo);
 
         // =========================
         // 2. 봉사 상세 조회
         // =========================
         VolunActivityDTO detail = dao.selectVolunDetail(volunActNo);
-        System.out.println("👉 detail: " + detail);
+        System.out.println("detail: " + detail);
 
         // =========================
         // 3. 신청 인원 수
         // =========================
         int applyCount = dao.selectApplyCount(volunActNo);
-        System.out.println("👉 applyCount: " + applyCount);
+        System.out.println("applyCount: " + applyCount);
 
         // =========================
         // 4. 페이징 처리
@@ -70,8 +70,8 @@ public class AdmVolManDetaController implements Execute {
         int startRow = (page - 1) * rowCount + 1;
         int endRow = page * rowCount;
 
-        System.out.println("👉 page: " + page);
-        System.out.println("👉 startRow: " + startRow + ", endRow: " + endRow);
+        System.out.println("page: " + page);
+        System.out.println("startRow: " + startRow + ", endRow: " + endRow);
 
         // =========================
         // 5. 신청자 리스트 조회
@@ -83,7 +83,7 @@ public class AdmVolManDetaController implements Execute {
 
         List<VolunApplyDTO> list = dao.selectApplyUserList(paramMap);
 
-        System.out.println("👉 list size: " + (list != null ? list.size() : "null"));
+        System.out.println("list size: " + (list != null ? list.size() : "null"));
 
         // =========================
         // 6. request 세팅
