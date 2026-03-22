@@ -33,9 +33,6 @@
 	<main class="l-main">
 	<jsp:include page="/app/admin/jsp/aside.jsp"/>
 
-
-
- 
     <!-- 우측 메인 컨텐츠 시작 -->
 
     <section class="l-content">

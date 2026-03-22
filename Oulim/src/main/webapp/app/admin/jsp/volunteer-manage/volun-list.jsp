@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/asset/css/component/select.css" />
   
   <link rel="stylesheet" href="${pageContext.request.contextPath}/app/admin/css/volunteer-manage/volun-list.css" />
-  <script defer src="${pageContext.request.contextPath}/app/admin/js/volunteer-manage/volun-list.js"></script>
+  <script src="${pageContext.request.contextPath}/app/admin/js/volunteer-manage/volun-list.js"></script>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/app/admin/css/aside.css" />
 </head>
 
@@ -27,30 +27,60 @@
 	
 	  <section class="l-content">
 	    <div class="header">
-	      <h1>봉사 활동 관리</h1>
+	      <h2>봉사 활동 관리</h2>
 	    </div>
 	
 		<div class="search-section">
-		  <form action="/admin/volunteer/list" method="get" class="search-form">
+		  <form action="/admin/volunlist.adm"  method="get" class="search-form" onsubmit="return validateSearchForm()">
 		    <div class="search-container">
 		      
 		      <div class="search-row">
 		        <div class="search-group">
 		          <label class="search-label">진행상태</label>
-		          <select name="status" class="c-select">
-		            <option value="all">전체</option>
-		            <option value="recruiting">모집중</option>
-		            <option value="ongoing">진행중</option>
-		            <option value="closed">종료</option>
-		          </select>
+					<select name="recruitStatus"class = "c-select">
+					  <option value="all" ${empty param.recruitStatus or param.recruitStatus == 'all' ? 'selected' : ''}>
+					  	전체
+					  </option>
+					  <option value="before" ${param.recruitStatus == 'before' ? 'selected' : ''}>
+					  	모집예정
+					  </option>
+					  <option value="recruiting" ${param.recruitStatus == 'recruiting' ? 'selected' : ''}>
+					  	모집중
+					  </option>
+					  <option value="closedRecruit" ${param.recruitStatus == 'closedRecruit' ? 'selected' : ''}>
+					  	모집마감
+					  </option>
+					  <option value="ongoing" ${param.recruitStatus == 'ongoing' ? 'selected' : ''}>
+					  	진행중
+					  </option>
+					  <option value="done" ${param.recruitStatus == 'done' ? 'selected' : ''}>
+					 	 종료
+					  </option>
+					</select>
 		        </div>
 		
 		        <div class="search-group">
 		          <label class="search-label">봉사기간</label>
 		          <div class="search-date-range">
-		            <input type="date" name="startDate" class="c-input">
-		            <span class="search-separator">~</span>
-		            <input type="date" name="endDate" class="c-input">
+				    <input 
+				      type="date"
+				      id="startDate"
+				      name="volunActProcBegin"
+				      value="${param.volunActProcBegin}"
+				      class="c-input"
+				      min="1900-01-01"
+				      max="2199-12-31">
+				
+				    <span class="search-separator">~</span>
+				
+				    <input 
+				      type="date"
+				      id="endDate"
+				      name="volunActProcEnd"
+				      value="${param.volunActProcEnd}"
+				      class="c-input"
+				      min="1900-01-01"
+				      max="2199-12-31">
 		          </div>
 		        </div>
 		      </div>
@@ -60,17 +90,26 @@
 		          <label class="search-label">검색어</label>
 		          <div class="search-input-wrapper">
 			          <select class="c-select" name="searchType">
-				          <option value="title">봉사번호</option>
-				          <option value="point">봉사명</option>
+						<option value="no" ${param.searchType == 'no' ? 'selected' : ''}>
+						  봉사번호
+						</option>
+						<option value="title" ${param.searchType == 'title' ? 'selected' : ''}>
+						  봉사제목
+						</option>
+						<option value="org" ${param.searchType == 'org' ? 'selected' : ''}>
+						  단체명
+						</option>
 				       </select>
-				       <input class="c-input" type="text" name="keyword" value="${search.keyword}" placeholder="검색어 입력" />		          
+				       <input class="c-input" type="text" name="keyword" value="${keyword}" placeholder="검색어 입력" />		          
 		          </div>
 		        </div>
 		      </div>
 		
 		      <div class="search-actions">
 		        <button type="submit" class="c-button c-button--primary c-button--md">조회</button>
-		        <button type="reset" class="c-button c-button--Tertiary c-button--md">초기화</button>
+			      <a href="/admin/volunlist.adm" class="c-button c-button--Tertiary c-button--md">
+			        초기화
+			      </a>
 		      </div>
 		
 		    </div>
