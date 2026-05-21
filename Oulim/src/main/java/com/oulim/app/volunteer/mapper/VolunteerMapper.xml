@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="volunAct">
-<!--봉사 신청 여부  -->
+
+<!-- 봉사 신청 여부 -->
 <select id="selectApplyCount" parameterType="map" resultType="int">
     SELECT COUNT(*)
     FROM TBL_VOLUN_APPLY
@@ -11,12 +13,16 @@
 </select>
 
 
- <select id="selectVolunteerList"
-          parameterType="VolunActivityDTO"
-          resultType="VolunActivityDTO">
+<!-- 봉사활동 목록 -->
+<select id="selectVolunteerList"
+        parameterType="VolunActivityDTO"
+        resultType="VolunActivityDTO">
+
     SELECT *
     FROM (
-        SELECT ROWNUM RN, A.*
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY A.volunActNo DESC) AS RN,
+            A.*
         FROM (
             SELECT
                 VA.Volun_Act_No            AS volunActNo,
@@ -29,15 +35,12 @@
                 VA.Volun_Act_Point         AS volunActPoint,
                 VA.Volun_Act_Address       AS volunActAddress,
 
-                /* 모집 상태 */
-                
                 CASE
-                    WHEN SYSDATE BETWEEN VA.Volun_Act_Recru_Begin AND VA.Volun_Act_Recru_End THEN '모집중'
-                    WHEN SYSDATE &lt; VA.Volun_Act_Recru_Begin THEN '모집예정'
+                    WHEN NOW() BETWEEN VA.Volun_Act_Recru_Begin AND DATE_ADD(VA.Volun_Act_Recru_End, INTERVAL 1 DAY) THEN '모집중'
+                    WHEN NOW() &lt; VA.Volun_Act_Recru_Begin THEN '모집예정'
                     ELSE '모집마감'
                 END AS recruStatus,
 
-                /* 활동 타입 */
                 CASE VA.Volun_Act_Act_Type
                     WHEN 1 THEN '환경'
                     WHEN 2 THEN '의료'
@@ -47,9 +50,8 @@
                     ELSE '기타'
                 END AS actTypeName,
 
-                /* 연령대 */
                 CASE VA.Volun_Act_Age_Group
-                	WHEN 0 THEN '전체'
+                    WHEN 0 THEN '전체'
                     WHEN 1 THEN '청소년'
                     WHEN 2 THEN '청년'
                     WHEN 3 THEN '직장인'
@@ -60,52 +62,47 @@
                 ON VA.Volun_Act_Organ_No = O.ORGAN_NO
 
             <where>
-
                 <if test="volunActActType != null and volunActActType != 0">
-				    VA.Volun_Act_Act_Type = #{volunActActType}
-				</if>
+                    VA.Volun_Act_Act_Type = #{volunActActType}
+                </if>
 
                 <if test="volunActAgeGroup != null and volunActAgeGroup != 0">
                     AND VA.Volun_Act_Age_Group = #{volunActAgeGroup}
                 </if>
 
-                <!-- 모집 상태 -->
                 <if test='recruitStatus != null and recruitStatus.equals("1")'>
-                    AND SYSDATE BETWEEN VA.Volun_Act_Recru_Begin AND VA.Volun_Act_Recru_End
+                    AND NOW() BETWEEN VA.Volun_Act_Recru_Begin AND DATE_ADD(VA.Volun_Act_Recru_End, INTERVAL 1 DAY)
                 </if>
 
                 <if test='recruitStatus != null and recruitStatus.equals("2")'>
-                    AND SYSDATE &lt; VA.Volun_Act_Recru_Begin
+                    AND NOW() &lt; VA.Volun_Act_Recru_Begin
                 </if>
 
                 <if test='recruitStatus != null and recruitStatus.equals("3")'>
-                    AND SYSDATE &gt; VA.Volun_Act_Recru_End
+                    AND NOW() &gt; DATE_ADD(VA.Volun_Act_Recru_End, INTERVAL 1 DAY)
                 </if>
 
                 <if test="organization != null and organization != ''">
-                    AND O.ORGAN_NAME LIKE '%' || #{organization} || '%'
+                    AND O.ORGAN_NAME LIKE CONCAT('%', #{organization}, '%')
                 </if>
 
                 <if test="searchType == 'title' and keyword != null and keyword != ''">
-                    AND VA.Volun_Act_Title LIKE '%' || #{keyword} || '%'
+                    AND VA.Volun_Act_Title LIKE CONCAT('%', #{keyword}, '%')
                 </if>
 
                 <if test="searchType == 'point' and keyword != null and keyword != ''">
                     AND VA.Volun_Act_Point = #{keyword}
                 </if>
-
             </where>
-
-            ORDER BY VA.Volun_Act_No DESC
-
         ) A
-        WHERE ROWNUM &lt;= #{endRow}
-    )
-    WHERE RN &gt; #{startRow}
+    ) B
+    WHERE B.RN &gt; #{startRow}
+      AND B.RN &lt;= #{endRow}
 
 </select>
 
 
+<!-- 봉사활동 개수 -->
 <select id="selectCount"
         parameterType="VolunActivityDTO"
         resultType="int">
@@ -116,7 +113,6 @@
         ON VA.Volun_Act_Organ_No = O.ORGAN_NO
 
     <where>
-
         <if test="volunActActType != null and volunActActType != 0">
             VA.Volun_Act_Act_Type = #{volunActActType}
         </if>
@@ -125,44 +121,46 @@
             AND VA.Volun_Act_Age_Group = #{volunActAgeGroup}
         </if>
 
-        <!-- 모집 상태 (중요 ) -->
         <if test='"1".equals(recruitStatus)'>
-            AND SYSDATE BETWEEN VA.Volun_Act_Recru_Begin AND VA.Volun_Act_Recru_End
+            AND NOW() BETWEEN VA.Volun_Act_Recru_Begin AND DATE_ADD(VA.Volun_Act_Recru_End, INTERVAL 1 DAY)
         </if>
 
         <if test='"2".equals(recruitStatus)'>
-            AND SYSDATE &lt; VA.Volun_Act_Recru_Begin
+            AND NOW() &lt; VA.Volun_Act_Recru_Begin
         </if>
 
         <if test='"3".equals(recruitStatus)'>
-            AND SYSDATE &gt; VA.Volun_Act_Recru_End
+            AND NOW() &gt; DATE_ADD(VA.Volun_Act_Recru_End, INTERVAL 1 DAY)
         </if>
 
         <if test="organization != null and organization != ''">
-            AND O.ORGAN_NAME LIKE '%' || #{organization} || '%'
+            AND O.ORGAN_NAME LIKE CONCAT('%', #{organization}, '%')
         </if>
 
         <if test='"title".equals(searchType) and keyword != null and keyword != ""'>
-            AND VA.Volun_Act_Title LIKE '%' || #{keyword} || '%'
+            AND VA.Volun_Act_Title LIKE CONCAT('%', #{keyword}, '%')
         </if>
 
         <if test='"point".equals(searchType) and keyword != null and keyword != ""'>
             AND VA.Volun_Act_Point = #{keyword}
         </if>
-
     </where>
 
 </select>
-<!--봉사활동 상세  -->
-<select id="selectVolunDetail" parameterType="int"
+
+
+<!-- 봉사활동 상세 -->
+<select id="selectVolunDetail"
+        parameterType="int"
         resultType="VolunActivityDTO">
+
     SELECT 
         V.Volun_Act_No              AS volunActNo,
         V.Volun_Act_Title           AS volunActTitle,
-        TO_CHAR(V.Volun_Act_Recru_Begin, 'YYYY-MM-DD') AS volunActRecruBegin,
-        TO_CHAR(V.Volun_Act_Recru_End, 'YYYY-MM-DD')   AS volunActRecruEnd,
-        TO_CHAR(V.Volun_Act_Proc_Begin, 'YYYY-MM-DD')  AS volunActProcBegin,
-        TO_CHAR(V.Volun_Act_Proc_End, 'YYYY-MM-DD')    AS volunActProcEnd,
+        DATE_FORMAT(V.Volun_Act_Recru_Begin, '%Y-%m-%d') AS volunActRecruBegin,
+        DATE_FORMAT(V.Volun_Act_Recru_End, '%Y-%m-%d')   AS volunActRecruEnd,
+        DATE_FORMAT(V.Volun_Act_Proc_Begin, '%Y-%m-%d')  AS volunActProcBegin,
+        DATE_FORMAT(V.Volun_Act_Proc_End, '%Y-%m-%d')    AS volunActProcEnd,
         V.Volun_Act_Point           AS volunActPoint,
         V.Volun_Act_Begin_Time      AS volunActBeginTime,
         V.Volun_Act_End_Time        AS volunActEndTime,
@@ -174,51 +172,44 @@
         V.Volun_Act_Address_Detail  AS volunActAddressDetail,
         V.Volun_Act_Detail          AS volunActDetail,
         O.Organ_Name                AS orgName,
+
         CASE 
-            WHEN SYSDATE <![CDATA[ < ]]> V.Volun_Act_Recru_Begin THEN '모집예정'
-            WHEN SYSDATE <![CDATA[ > ]]> V.Volun_Act_Recru_End THEN '마감'
+            WHEN NOW() &lt; V.Volun_Act_Recru_Begin THEN '모집예정'
+            WHEN NOW() &gt; DATE_ADD(V.Volun_Act_Recru_End, INTERVAL 1 DAY) THEN '마감'
             ELSE '모집중'
         END AS recruStatus
+
     FROM TBL_VOLUN_ACTIVITY V
     JOIN TBL_ORGAN O
       ON V.Volun_Act_Organ_No = O.Organ_No
     WHERE V.Volun_Act_No = #{volunActNo}
+
 </select>
 
-<!--봉사 신청  -->
+
+<!-- 봉사 신청 -->
 <insert id="applyVolunteer" parameterType="VolunApplyDTO">
-    MERGE INTO TBL_VOLUN_APPLY A
-    USING (
-        SELECT
-            #{volunActNo} AS VOLUN_ACT_NO,
-            #{userNo} AS USER_NO
-        FROM DUAL
-    ) B
-    ON (
-        A.VOLUN_ACT_NO = B.VOLUN_ACT_NO
-        AND A.USER_NO = B.USER_NO
+    INSERT INTO TBL_VOLUN_APPLY (
+        VOLUN_ACT_NO,
+        USER_NO,
+        VOLUNACT_APPLYDATE,
+        VOLUNACT_APPLYSTATUS,
+        VOLUNACT_ATTENDANCE
     )
-    WHEN MATCHED THEN
-        UPDATE SET
-            A.VOLUNACT_APPLYSTATUS = 1,
-            A.VOLUNACT_APPLYDATE = SYSDATE
-    WHEN NOT MATCHED THEN
-        INSERT (
-            VOLUN_ACT_NO,
-            USER_NO,
-            VOLUNACT_APPLYDATE,
-            VOLUNACT_APPLYSTATUS,
-            VOLUNACT_ATTENDANCE
-        )
-        VALUES (
-            #{volunActNo},
-            #{userNo},
-            SYSDATE,
-            1,
-            0
-        )
+    VALUES (
+        #{volunActNo},
+        #{userNo},
+        NOW(),
+        1,
+        0
+    )
+    ON DUPLICATE KEY UPDATE
+        VOLUNACT_APPLYSTATUS = 1,
+        VOLUNACT_APPLYDATE = NOW()
 </insert>
-<!--철회  -->
+
+
+<!-- 철회 -->
 <update id="cancelVolunteer" parameterType="VolunApplyDTO">
     UPDATE TBL_VOLUN_APPLY
     SET VOLUNACT_APPLYSTATUS = 0
@@ -226,26 +217,25 @@
       AND USER_NO = #{userNo}
 </update>
 
+
 <!-- 메인화면 봉사활동 조회 -->
 <select id="selectVolunMain" resultType="VolunActivityDTO">
-	<![CDATA[    
-		SELECT ROWNUM RN, A.*
-        FROM (
-            SELECT
-                VA.Volun_Act_No            AS volunActNo,
-                VA.Volun_Act_Title         AS volunActTitle,
-                VA.Volun_Act_Point         AS volunActPoint,
-                VA.Volun_Act_Address       AS volunActAddress,
+    SELECT
+        ROW_NUMBER() OVER (ORDER BY VA.Volun_Act_No DESC) AS RN,
+        VA.Volun_Act_No            AS volunActNo,
+        VA.Volun_Act_Title         AS volunActTitle,
+        VA.Volun_Act_Point         AS volunActPoint,
+        VA.Volun_Act_Address       AS volunActAddress,
 
-                /* 모집 상태 */
-                CASE
-                    WHEN SYSDATE BETWEEN VA.Volun_Act_Recru_Begin AND VA.Volun_Act_Recru_End THEN '모집중'
-                    WHEN SYSDATE < VA.Volun_Act_Recru_Begin THEN '모집예정'
-                    ELSE '모집마감'
-                END AS recruStatus
-                FROM TBL_VOLUN_ACTIVITY VA
-                ORDER BY VA.Volun_Act_No DESC) A
-         WHERE ROWNUM <= 10                
-         ]]>
+        CASE
+            WHEN NOW() BETWEEN VA.Volun_Act_Recru_Begin AND DATE_ADD(VA.Volun_Act_Recru_End, INTERVAL 1 DAY) THEN '모집중'
+            WHEN NOW() &lt; VA.Volun_Act_Recru_Begin THEN '모집예정'
+            ELSE '모집마감'
+        END AS recruStatus
+
+    FROM TBL_VOLUN_ACTIVITY VA
+    ORDER BY VA.Volun_Act_No DESC
+    LIMIT 10
 </select>
+
 </mapper>

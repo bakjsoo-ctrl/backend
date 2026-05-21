@@ -1,97 +1,156 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- mapper 에서 입력한 값과 비교  -->
-<mapper namespace="admin"> 
-<select id="login" 
-parameterType="AdminDTO"
-resultType="int">
-    SELECT admin_no
-    FROM tbl_admin_account
-    WHERE admin_id = #{adminId}
-      AND admin_pw = #{adminPw}
-</select>
+<mapper namespace="admin">
 
-<select id="selectStatistic" resultType="AdminStatisticDTO">
-	SELECT 
-	u.total_user,
-	u.NOT_APPROVED_ORGAN_USER,
-	u.total_organ_user,
-	o.organ_count,
-	ap.uncomplete_volun_act,
-	va.TOTAL_VOLUN_ACT 
-	FROM
-	(SELECT 
-	count(*) AS total_user,
-	count(CASE WHEN user_status = 2 AND user_type = 2 THEN 1 END) AS NOT_APPROVED_ORGAN_USER,
-	count(CASE WHEN user_type = 2 THEN 1 END ) AS total_organ_user 
-	FROM TBL_USER tu ) u, 
-	(SELECT count(*) AS organ_count 
-	FROM tbl_organ tbo) o,
-	(SELECT count(DISTINCT tva.VOLUN_ACT_NO ) AS uncomplete_volun_act
-	FROM TBL_VOLUN_APPLY tva WHERE tva.VOLUNACT_ATTENDANCE = 0) ap,
-	(SELECT count(*) AS total_volun_act FROM tbl_volun_activity) va
-</select> 
+    <!-- 1. 관리자 로그인 -->
+    <select id="login"
+            parameterType="AdminDTO"
+            resultType="int">
+        SELECT admin_no
+        FROM tbl_admin_account
+        WHERE admin_id = #{adminId}
+          AND admin_pw = #{adminPw}
+    </select>
 
-<select id="getUnApprovedMember" resultType="UserDTO">
-	SELECT tu.user_no, tu.ORGAN_NAME, tu.user_name , tu.USER_ID , tu.USER_EMAIL 
-		 FROM tbl_user tu
-		WHERE tu.user_type = 2 AND tu.user_status = 2
-</select>
 
-<select id="getRequireApproveMember" parameterType="Map" resultType="AdminCompanyCertificationDTO">
-	SELECT  rnum, user_no,user_name, organ_name, user_id, user_email, organ_no 
- 	FROM (
- 	 SELECT rownum as rnum, subquery.*
-	 FROM
-		(SELECT tu.user_no, tu.ORGAN_NAME, tu.user_name , tu.USER_ID , tu.USER_EMAIL , toc.ORGAN_NO 
-		 FROM tbl_user tu
-		LEFT JOIN TBL_ORGAN_CERT toc ON toc.USER_NO = tu.user_no
-		WHERE tu.user_type = 2 AND tu.user_status = 2
-		ORDER BY tu.user_no DESC
-		) subquery
-	) where rnum between #{startRow} and #{endRow}
-</select>
+    <!-- 2. 통계 조회 -->
+    <select id="selectStatistic" resultType="AdminStatisticDTO">
+        SELECT
+            u.total_user,
+            u.NOT_APPROVED_ORGAN_USER,
+            u.total_organ_user,
+            o.organ_count,
+            ap.uncomplete_volun_act,
+            va.TOTAL_VOLUN_ACT
+        FROM
+            (SELECT
+                COUNT(*)                                                    AS total_user,
+                COUNT(CASE WHEN user_status = 2 AND user_type = 2 THEN 1 END) AS NOT_APPROVED_ORGAN_USER,
+                COUNT(CASE WHEN user_type = 2 THEN 1 END)                  AS total_organ_user
+             FROM TBL_USER) u,
+            (SELECT COUNT(*) AS organ_count
+             FROM tbl_organ) o,
+            (SELECT COUNT(DISTINCT tva.VOLUN_ACT_NO) AS uncomplete_volun_act
+             FROM TBL_VOLUN_APPLY tva
+             WHERE tva.VOLUNACT_ATTENDANCE = 0) ap,
+            (SELECT COUNT(*) AS TOTAL_VOLUN_ACT
+             FROM tbl_volun_activity) va
+    </select>
 
-<select id="getTotalRequireMember" resultType="int">
-	SELECT COUNT(*) FROM TBL_USER tu
-	WHERE tu.user_type = 2 AND tu.user_status = 2
-</select>
 
-<select id="getOrganUserCertDetail" parameterType="int" resultType="AdminCompanyCertificationDTO">
-		SELECT tu.user_no, tu.ORGAN_NAME, tu.user_name , tu.USER_ID , tu.USER_EMAIL , tu.user_birth,
-		toc.ORGAN_NO, tbo.organ_cert_num, toc.organ_file_system_name, toc.organ_file_original_name, tu.user_status
-		 FROM tbl_user tu
-		LEFT JOIN TBL_ORGAN_CERT toc ON toc.USER_NO = tu.user_no
-		JOIN TBL_ORGAN tbo on toc.organ_no = tbo.organ_no
-		WHERE tu.user_no = #{userNo}
-</select>
+    <!-- 3. 미승인 기업회원 목록 (단순 조회) -->
+    <select id="getUnApprovedMember" resultType="UserDTO">
+        SELECT
+            tu.user_no,
+            tu.ORGAN_NAME,
+            tu.user_name,
+            tu.USER_ID,
+            tu.USER_EMAIL
+        FROM tbl_user tu
+        WHERE tu.user_type = 2
+          AND tu.user_status = 2
+    </select>
 
-<update id="updateUserCert" parameterType="Map">
-	Update tbl_user set user_status = 1, organ_no = #{organNo} where user_no = #{userNo}
-</update>
 
-<delete id="rejectCertification" parameterType="int">
-	DELETE FROM TBL_USER WHERE user_no = #{userNo} and user_status = 2
-</delete>
+    <!-- 4. 승인 대기 기업회원 목록 (페이지네이션) -->
+    <select id="getRequireApproveMember"
+            parameterType="Map"
+            resultType="AdminCompanyCertificationDTO">
+        SELECT
+            tu.user_no,
+            tu.user_name,
+            tu.ORGAN_NAME,
+            tu.USER_ID,
+            tu.USER_EMAIL,
+            toc.ORGAN_NO
+        FROM tbl_user tu
+        LEFT JOIN TBL_ORGAN_CERT toc ON toc.USER_NO = tu.user_no
+        WHERE tu.user_type = 2
+          AND tu.user_status = 2
+        ORDER BY tu.user_no DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
 
-<select id="uncompleteVolunList" resultType="VolunActivityDTO">
-		select * from
-		(select rownum as rnum ,subquery.*
-		from
-		(SELECT tva.volun_act_no as volunActNo, tbo.organ_name as orgName, tva.volun_act_proc_end as volunActProcEnd, tva.volun_act_organ_no as volunActOrganNo
-		FROM TBL_VOLUN_ACTIVITY tva 
-		JOIN tbl_organ tbo ON tva.VOLUN_ACT_ORGAN_NO = tbo.ORGAN_NO 
-		WHERE EXISTS (SELECT tva2.VOLUN_ACT_NO  FROM TBL_VOLUN_APPLY tva2 WHERE tva2.VOLUNACT_ATTENDANCE = 0 )
-		ORDER BY tva.volun_act_proc_end) subquery
-		)<![CDATA[ where rnum <= 5  
-		]]>
-</select>
 
-<select id="findOrganUser" parameterType="int" resultType="UserDTO">
-	select tu.user_No, tu.user_email
-	from tbl_user tu
-	where tu.organ_no = #{organNo} and tu.user_status=1
-	order by tu.user_last_login
-</select>
+    <!-- 5. 승인 대기 기업회원 총 개수 -->
+    <select id="getTotalRequireMember" resultType="int">
+        SELECT COUNT(*)
+        FROM TBL_USER tu
+        WHERE tu.user_type = 2
+          AND tu.user_status = 2
+    </select>
+
+
+    <!-- 6. 기업회원 인증 상세 조회 -->
+    <select id="getOrganUserCertDetail"
+            parameterType="int"
+            resultType="AdminCompanyCertificationDTO">
+        SELECT
+            tu.user_no,
+            tu.ORGAN_NAME,
+            tu.user_name,
+            tu.USER_ID,
+            tu.USER_EMAIL,
+            tu.user_birth,
+            toc.ORGAN_NO,
+            tbo.organ_cert_num,
+            toc.organ_file_system_name,
+            toc.organ_file_original_name
+        FROM tbl_user tu
+        LEFT JOIN TBL_ORGAN_CERT toc ON toc.USER_NO = tu.user_no
+        JOIN TBL_ORGAN tbo ON toc.organ_no = tbo.organ_no
+        WHERE tu.user_no = #{userNo}
+    </select>
+
+
+    <!-- 7. 기업회원 승인 처리 -->
+    <update id="updateUserCert" parameterType="Map">
+        UPDATE tbl_user
+        SET user_status = 1,
+            organ_no    = #{organNo}
+        WHERE user_no = #{userNo}
+    </update>
+
+
+    <!-- 8. 기업회원 반려 처리 -->
+    <delete id="rejectCertification" parameterType="int">
+        DELETE FROM TBL_USER
+        WHERE user_no = #{userNo}
+          AND user_status = 2
+    </delete>
+
+
+    <!-- 9. 봉사활동 미완료 목록 (상위 5건) -->
+    <select id="uncompleteVolunList" resultType="VolunActivityDTO">
+        SELECT
+            tva.volun_act_no   AS volunActNo,
+            tbo.organ_name     AS orgName,
+            tva.volun_act_proc_end  AS volunActProcEnd,
+            tva.volun_act_organ_no  AS volunActOrganNo
+        FROM TBL_VOLUN_ACTIVITY tva
+        JOIN tbl_organ tbo ON tva.VOLUN_ACT_ORGAN_NO = tbo.ORGAN_NO
+        WHERE EXISTS (
+            SELECT 1
+            FROM TBL_VOLUN_APPLY tva2
+            WHERE tva2.VOLUNACT_ATTENDANCE = 0
+        )
+        ORDER BY tva.volun_act_proc_end
+        LIMIT 5
+    </select>
+
+
+    <!-- 10. 기관 소속 유저 조회 -->
+    <select id="findOrganUser"
+            parameterType="int"
+            resultType="UserDTO">
+        SELECT
+            tu.user_no,
+            tu.user_email
+        FROM tbl_user tu
+        WHERE tu.organ_no = #{organNo}
+          AND tu.user_status = 1
+        ORDER BY tu.user_last_login
+    </select>
+
 </mapper>

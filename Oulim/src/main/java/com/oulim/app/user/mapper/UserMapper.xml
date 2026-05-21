@@ -36,40 +36,35 @@
 		#{userPhoneNum}
 	</select>
 
-	<!-- 일반회원 가입 -->
-	<insert id="normaljoin" parameterType="UserDTO">
-		<selectKey keyProperty="userNo" resultType="int"
-			order="BEFORE">
-			SELECT SEQ_TBL_USER.NEXTVAL FROM DUAL
-		</selectKey>
-		INSERT INTO TBL_USER (
-		USER_NO,
-		USER_NAME,
-		USER_ID,
-		USER_PW,
-		USER_BIRTH,
-		USER_EMAIL,
-		USER_TYPE,
-		USER_STATUS,
-		USER_NICKNAME,
-		USER_PHONE_NUM
-		) VALUES
-		(
-		#{userNo},
-		#{userName},
-		#{userId},
-		#{userPw},
-		TO_DATE(#{userBirth},
-		'YYYY-MM-DD'),
-		#{userEmail},
-		1,
-		1,
-		#{userNickname},
-		#{userPhoneNum}
-		)
+	<!-- 일반회원 가입 (변경) -->
+	<insert id="normaljoin" parameterType="UserDTO"
+        useGeneratedKeys="true"
+        keyProperty="userNo">
+
+    INSERT INTO TBL_USER (
+        USER_NAME,
+        USER_ID,
+        USER_PW,
+        USER_BIRTH,
+        USER_EMAIL,
+        USER_TYPE,
+        USER_STATUS,
+        USER_NICKNAME,
+        USER_PHONE_NUM
+    ) VALUES (
+        #{userName},
+        #{userId},
+        #{userPw},
+        #{userBirth},
+        #{userEmail},
+        1,
+        1,
+        #{userNickname},
+        #{userPhoneNum}
+    )
 	</insert>
 
-	<!-- 기업회원 사업자 번호 조회 -->
+	<!-- 기업회원 사업자 번호 조회 (변경)-->
 	<select id="selectOrganByCertNum" parameterType="string"
 		resultType="OrganDTO">
 		SELECT ORGAN_NO, ORGAN_NAME, ORGAN_CERT_NUM
@@ -78,73 +73,63 @@
 	</select>
 
 	<!-- 기관 등록 -->
-	<insert id="insertorgan" parameterType="OrganDTO">
-		<selectKey keyProperty="organNo" resultType="int"
-			order="BEFORE">
-			SELECT SEQ_TBL_ORGAN.NEXTVAL FROM DUAL
-		</selectKey>
-		INSERT INTO TBL_ORGAN (
-		ORGAN_NO,
-		ORGAN_NAME,
-		ORGAN_CERT_NUM
-		) VALUES (
-		#{organNo},
-		#{organName},
-		#{organCertNum}
-		)
+	<insert id="insertorgan" parameterType="OrganDTO"
+        useGeneratedKeys="true"
+        keyProperty="organNo">
+
+    INSERT INTO TBL_ORGAN (
+        ORGAN_NAME,
+        ORGAN_CERT_NUM
+    ) VALUES (
+        #{organName},
+        #{organCertNum}
+    )
 	</insert>
 
-	<!-- 파일 추가 -->
-	<insert id="insertPdf" parameterType="OrganCertDTO">
-		<selectKey keyProperty="organCertNo" resultType="int"
-			order="BEFORE">
-			SELECT SEQ_TBL_ORGAN_CERT.NEXTVAL FROM DUAL
-		</selectKey>
-		INSERT INTO TBL_ORGAN_CERT (
-		ORGAN_CERT_NO,
-		USER_NO,
-		ORGAN_NO,
-		ORGAN_FILE_SYSTEM_NAME,
-		ORGAN_FILE_ORIGINAL_NAME
-		) VALUES (
-		#{organCertNo},
-		#{userNo},
-		#{organNo},
-		#{organFileSystemName},
-		#{organFileOriginalName}
-		)
+	<!-- 파일 추가 (변경) -->
+	<insert id="insertPdf" parameterType="OrganCertDTO"
+        useGeneratedKeys="true"
+        keyProperty="organCertNo">
+
+    INSERT INTO TBL_ORGAN_CERT (
+        USER_NO,
+        ORGAN_NO,
+        ORGAN_FILE_SYSTEM_NAME,
+        ORGAN_FILE_ORIGINAL_NAME
+    ) VALUES (
+        #{userNo},
+        #{organNo},
+        #{organFileSystemName},
+        #{organFileOriginalName}
+    )
 	</insert>
 
-	<!-- 기업회원 가입 -->
-	<insert id="organjoin" parameterType="UserDTO">
-		<selectKey keyProperty="userNo" resultType="int"
-			order="BEFORE">
-			SELECT SEQ_TBL_USER.NEXTVAL FROM DUAL
-		</selectKey>
-		INSERT INTO TBL_USER (
-		USER_NO,
-		USER_NAME,
-		USER_ID,
-		USER_PW,
-		USER_BIRTH,
-		USER_EMAIL,
-		USER_TYPE,
-		USER_STATUS,
-		ORGAN_NAME,
-		ORGAN_NO
-		) VALUES (
-		#{userNo},
-		#{userName},
-		#{userId},
-		#{userPw},
-		TO_DATE(#{userBirth},
-		'YYYY-MM-DD'),
-		#{userEmail},
-		2,
-		2,
-		#{organName},
-		#{organNo}
-		)
+	<!-- 기업회원 가입 (변경)-->
+	<insert id="organjoin" parameterType="UserDTO"
+        useGeneratedKeys="true"
+        keyProperty="userNo">
+
+    INSERT INTO TBL_USER (
+        USER_NAME,
+        USER_ID,
+        USER_PW,
+        USER_BIRTH,
+        USER_EMAIL,
+        USER_TYPE,
+        USER_STATUS,
+        ORGAN_NAME,
+        ORGAN_NO
+    ) VALUES (
+        #{userName},
+        #{userId},
+        #{userPw},
+        #{userBirth},
+        #{userEmail},
+        2,
+        2,
+        #{organName},
+        #{organNo}
+    )
 	</insert>
 
 	<!-- 로그인 쿼리 -->
@@ -200,32 +185,47 @@
 	</update>
 
 	<!-- 실제 존재하는 유저인지 체크하는 쿼리 -->
-	<select id="checkUserNo" parameterType="int">
-		SELECT user_no FROM
-		TBL_USER
-		WHERE user_no = #{userNo}
+	<select id="checkUserNo" parameterType="int" resultType="int">
+    SELECT user_no
+    FROM TBL_USER
+    WHERE user_no = #{userNo}
 	</select>
 
 
 	<!-- 보유 재화 조회 -->
 	<select id="getCurrency" parameterType="int" resultType="CurrencyDTO">
-		SELECT currency_id, user_no, total_amount FROM TBL_CURRENCY where user_no = #{userNo}
+    SELECT
+        currency_id,
+        user_no,
+        total_amount
+    FROM TBL_CURRENCY
+    WHERE user_no = #{userNo}
 	</select>
 	
 	<!-- 특정 보유 재화 조회 -->
 	<select id="getCurrencyOne" parameterType="Map" resultType="CurrencyDTO">
-		SELECT currency_id, user_no, total_amount FROM TBL_CURRENCY WHERE USER_NO = #{userNo} AND CURRENCY_ID = #{currencyId}
+    SELECT
+        currency_id,
+        user_no,
+        total_amount
+    FROM TBL_CURRENCY
+    WHERE USER_NO = #{userNo}
+      AND CURRENCY_ID = #{currencyId}
 	</select>
 	
-	<!-- 보유 재화 변경 -->
+	<!-- 보유 재화 변경 (변경)-->
 	<update id="upsertCurrency" parameterType="CurrencyDTO">
-	MERGE INTO TBL_CURRENCY tc USING(
-		SELECT #{userNo} AS User_No, #{currencyId} as currency_id FROM DUAL) src on (tc.user_no = src.user_no and tc.currency_id = src.currency_id) 
-		WHEN NOT MATCHED THEN
-			INSERT (currency_id, user_no, total_amount)
-			VALUES (#{currencyId}, #{userNo}, #{totalAmount})
-		WHEN MATCHED THEN
-			Update set total_amount = #{totalAmount} 
+    INSERT INTO TBL_CURRENCY (
+        currency_id,
+        user_no,
+        total_amount
+    ) VALUES (
+        #{currencyId},
+        #{userNo},
+        #{totalAmount}
+    )
+    ON DUPLICATE KEY UPDATE
+        total_amount = #{totalAmount}
 	</update>
 	
 	
@@ -239,9 +239,23 @@
 		</where>
 	</select>
 	
-	<!--  포인트 이력 삽입 -->
-	<insert id="pointLogInsert" parameterType="LogPointDTO">
-		INSERT INTO TBL_LOG_POINT(Log_No, User_No, Currency_ID, Change_Amount, Log_Reason, Log_Date)
-		VALUES (SEQ_TBL_LOG_POINT.nextval, #{userNo}, #{currencyId}, #{changeAmount}, #{logReason}, sysdate)
+	<!--  포인트 이력 삽입 (변경)-->
+	<insert id="pointLogInsert" parameterType="LogPointDTO"
+        useGeneratedKeys="true"
+        keyProperty="logNo">
+
+    INSERT INTO TBL_LOG_POINT (
+        User_No,
+        Currency_ID,
+        Change_Amount,
+        Log_Reason,
+        Log_Date
+    ) VALUES (
+        #{userNo},
+        #{currencyId},
+        #{changeAmount},
+        #{logReason},
+        NOW()
+    )
 	</insert>
 </mapper>
