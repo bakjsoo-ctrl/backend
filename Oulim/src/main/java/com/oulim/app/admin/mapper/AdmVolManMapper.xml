@@ -2,175 +2,150 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="AdmVolMan">
-	<!-- 봉사활동 정보 조회 -->
-	<select id="selectAdminVolunList"
-		parameterType="VolunActivityDTO" resultType="VolunActivityDTO">
 
-		SELECT * FROM (
-		SELECT ROWNUM RN, A.*
-		FROM (
-		SELECT
-		VA.Volun_Act_No AS volunActNo,
-		VA.Volun_Act_Title AS volunActTitle,
-		O.Organ_Name AS orgName,
-		VA.Volun_Act_Recru_Begin AS volunActRecruBegin,
-		VA.Volun_Act_Recru_End AS volunActRecruEnd,
-		TO_CHAR(VA.Volun_Act_Proc_Begin, 'YYYY-MM-DD') AS volunActProcBegin,
-		TO_CHAR(VA.Volun_Act_Proc_End, 'YYYY-MM-DD') AS volunActProcEnd,
-		VA.Volun_Act_Point AS point,
+    <!-- 1. 봉사활동 목록 조회 + 검색 + 페이징 -->
+    <select id="selectAdminVolunList"
+            parameterType="VolunActivityDTO"
+            resultType="VolunActivityDTO">
+        SELECT
+            VA.Volun_Act_No                                    AS volunActNo,
+            VA.Volun_Act_Title                                 AS volunActTitle,
+            O.Organ_Name                                       AS orgName,
+            VA.Volun_Act_Recru_Begin                           AS volunActRecruBegin,
+            VA.Volun_Act_Recru_End                             AS volunActRecruEnd,
+            DATE_FORMAT(VA.Volun_Act_Proc_Begin, '%Y-%m-%d')  AS volunActProcBegin,
+            DATE_FORMAT(VA.Volun_Act_Proc_End,   '%Y-%m-%d')  AS volunActProcEnd,
+            VA.Volun_Act_Point                                 AS point,
 
-		/* 진행 상태 */
-		CASE
-		WHEN SYSDATE &lt; VA.Volun_Act_Recru_Begin THEN '모집예정'
-		WHEN SYSDATE BETWEEN VA.Volun_Act_Recru_Begin AND VA.Volun_Act_Recru_End
-		THEN '모집중'
-		WHEN SYSDATE > VA.Volun_Act_Recru_End AND SYSDATE &lt;
-		VA.Volun_Act_Proc_Begin THEN '모집마감'
-		WHEN SYSDATE BETWEEN VA.Volun_Act_Proc_Begin AND VA.Volun_Act_Proc_End
-		THEN '진행중'
-		ELSE '종료' END AS recruStatus
+            /* 진행 상태 */
+            CASE
+                WHEN NOW() &lt; VA.Volun_Act_Recru_Begin
+                    THEN '모집예정'
+                WHEN NOW() BETWEEN VA.Volun_Act_Recru_Begin AND VA.Volun_Act_Recru_End
+                    THEN '모집중'
+                WHEN NOW() &gt; VA.Volun_Act_Recru_End
+                 AND NOW() &lt; VA.Volun_Act_Proc_Begin
+                    THEN '모집마감'
+                WHEN NOW() BETWEEN VA.Volun_Act_Proc_Begin AND VA.Volun_Act_Proc_End
+                    THEN '진행중'
+                ELSE '종료'
+            END AS recruStatus
 
-		FROM TBL_VOLUN_ACTIVITY VA
-		LEFT JOIN TBL_ORGAN O
-		ON VA.Volun_Act_Organ_No = O.Organ_No
+        FROM TBL_VOLUN_ACTIVITY VA
+        LEFT JOIN TBL_ORGAN O
+            ON VA.Volun_Act_Organ_No = O.Organ_No
 
-		<where>
-			1 = 1
+        <where>
+            1 = 1
 
-			<!-- 모집 상태 검색 -->
-			<if test="recruitStatus != null and recruitStatus != 'all'">
-				<choose>
-					<!-- 모집예정 -->
-					<when test="recruitStatus == 'before'">
-						AND SYSDATE &lt; VA.Volun_Act_Recru_Begin
-					</when>
+            <!-- 모집 상태 검색 -->
+            <if test="recruitStatus != null and recruitStatus != 'all'">
+                <choose>
+                    <!-- 모집예정 -->
+                    <when test="recruitStatus == 'before'">
+                        AND NOW() &lt; VA.Volun_Act_Recru_Begin
+                    </when>
+                    <!-- 모집중 -->
+                    <when test="recruitStatus == 'recruiting'">
+                        AND NOW() BETWEEN VA.Volun_Act_Recru_Begin AND VA.Volun_Act_Recru_End
+                    </when>
+                    <!-- 모집마감 -->
+                    <when test="recruitStatus == 'closedRecruit'">
+                        AND NOW() &gt; VA.Volun_Act_Recru_End
+                        AND NOW() &lt; VA.Volun_Act_Proc_Begin
+                    </when>
+                    <!-- 진행중 -->
+                    <when test="recruitStatus == 'ongoing'">
+                        AND NOW() BETWEEN VA.Volun_Act_Proc_Begin AND VA.Volun_Act_Proc_End
+                    </when>
+                    <!-- 종료 -->
+                    <when test="recruitStatus == 'done'">
+                        AND NOW() &gt; VA.Volun_Act_Proc_End
+                    </when>
+                </choose>
+            </if>
 
-					<!-- 모집중 -->
-					<when test="recruitStatus == 'recruiting'">
-						AND SYSDATE BETWEEN VA.Volun_Act_Recru_Begin AND
-						VA.Volun_Act_Recru_End
-					</when>
+            <!-- 기간 검색 -->
+            <if test="volunActProcBegin != null and volunActProcBegin != ''">
+                AND VA.Volun_Act_Proc_End &gt;= STR_TO_DATE(#{volunActProcBegin}, '%Y-%m-%d')
+            </if>
+            <if test="volunActProcEnd != null and volunActProcEnd != ''">
+                AND VA.Volun_Act_Proc_Begin &lt;= STR_TO_DATE(#{volunActProcEnd}, '%Y-%m-%d')
+            </if>
 
-					<!-- 모집마감 -->
-					<when test="recruitStatus == 'closedRecruit'">
-						AND SYSDATE &gt; VA.Volun_Act_Recru_End
-						AND SYSDATE &lt; VA.Volun_Act_Proc_Begin
-					</when>
+            <!-- 통합 검색 -->
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    VA.Volun_Act_Title LIKE CONCAT('%', #{keyword}, '%')
+                    OR O.Organ_Name    LIKE CONCAT('%', #{keyword}, '%')
+                    <if test="keyword.matches('^[0-9]+$')">
+                        OR VA.Volun_Act_No = #{keyword}
+                    </if>
+                )
+            </if>
 
-					<!-- 진행중 -->
-					<when test="recruitStatus == 'ongoing'">
-						AND SYSDATE BETWEEN VA.Volun_Act_Proc_Begin AND VA.Volun_Act_Proc_End
-					</when>
+        </where>
 
-					<!-- 종료 -->
-					<when test="recruitStatus == 'done'">
-						AND SYSDATE &gt; VA.Volun_Act_Proc_End
-					</when>
-
-				</choose>
-
-			</if>
-
-			<!-- 기간 검색 -->
-		    <if test="volunActProcBegin != null and volunActProcBegin != ''">
-		        AND VA.Volun_Act_Proc_End &gt;= TO_DATE(#{volunActProcBegin}, 'YYYY-MM-DD')
-		    </if>
-		
-		    <if test="volunActProcEnd != null and volunActProcEnd != ''">
-		        AND VA.Volun_Act_Proc_Begin &lt;= TO_DATE(#{volunActProcEnd}, 'YYYY-MM-DD')
-		    </if>
-
-			<!-- 통합 검색 -->
-			<if test="keyword != null and keyword != ''">
-				AND (
-				VA.Volun_Act_Title LIKE '%' || #{keyword} || '%'
-				OR O.Organ_Name LIKE '%' || #{keyword} || '%'
-
-				<if test="keyword.matches('^[0-9]+$')">
-					OR VA.Volun_Act_No = #{keyword}
-				</if>
-				)
-			</if>
-
-		</where>
-
-		ORDER BY VA.Volun_Act_No DESC
-
-		) A
-		WHERE ROWNUM &lt;= #{endRow}
-		)
-		WHERE RN &gt;= #{startRow}
-
-	</select>
-	<!-- 총개수 페이지 처리용 -->
-	<select id="selectAdminVolunCount"
-		parameterType="VolunActivityDTO" resultType="int">
-
-		SELECT COUNT(*)
-		FROM TBL_VOLUN_ACTIVITY VA
-		LEFT JOIN TBL_ORGAN O
-		ON VA.Volun_Act_Organ_No = O.Organ_No
-
-		<where>
-			1 = 1
-
-			<if test="recruitStatus != null and recruitStatus != 'all'">
-				<choose>
-					<!-- 모집예정 -->
-					<when test="recruitStatus == 'before'">
-						AND SYSDATE &lt; VA.Volun_Act_Recru_Begin
-					</when>
-
-					<!-- 모집중 -->
-					<when test="recruitStatus == 'recruiting'">
-						AND SYSDATE BETWEEN VA.Volun_Act_Recru_Begin AND
-						VA.Volun_Act_Recru_End
-					</when>
-
-					<!-- 모집마감 -->
-					<when test="recruitStatus == 'closedRecruit'">
-						AND SYSDATE &gt; VA.Volun_Act_Recru_End
-						AND SYSDATE &lt; VA.Volun_Act_Proc_Begin
-					</when>
-
-					<!-- 진행중 -->
-					<when test="recruitStatus == 'ongoing'">
-						AND SYSDATE BETWEEN VA.Volun_Act_Proc_Begin AND VA.Volun_Act_Proc_End
-					</when>
-
-					<!-- 종료 -->
-					<when test="recruitStatus == 'done'">
-						AND SYSDATE &gt; VA.Volun_Act_Proc_End
-					</when>
-
-				</choose>
-
-			</if>
-
-			<!-- 기간 검색 -->
-		    <if test="volunActProcBegin != null and volunActProcBegin != ''">
-		        AND VA.Volun_Act_Proc_End &gt;= TO_DATE(#{volunActProcBegin}, 'YYYY-MM-DD')
-		    </if>
-		
-		    <if test="volunActProcEnd != null and volunActProcEnd != ''">
-		        AND VA.Volun_Act_Proc_Begin &lt;= TO_DATE(#{volunActProcEnd}, 'YYYY-MM-DD')
-		    </if>
-
-			<!-- 통합 검색 -->
-			<if test="keyword != null and keyword != ''">
-				AND (
-				VA.Volun_Act_Title LIKE '%' || #{keyword} || '%'
-				OR O.Organ_Name LIKE '%' || #{keyword} || '%'
-
-				<if test="keyword.matches('^[0-9]+$')">
-					OR VA.Volun_Act_No = #{keyword}
-				</if>
-				)
-			</if>
+        ORDER BY VA.Volun_Act_No DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
 
 
-		</where>
+    <!-- 2. 총 개수 (페이지네이션용) -->
+    <select id="selectAdminVolunCount"
+            parameterType="VolunActivityDTO"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM TBL_VOLUN_ACTIVITY VA
+        LEFT JOIN TBL_ORGAN O
+            ON VA.Volun_Act_Organ_No = O.Organ_No
 
-	</select>
+        <where>
+            1 = 1
+
+            <!-- 모집 상태 검색 -->
+            <if test="recruitStatus != null and recruitStatus != 'all'">
+                <choose>
+                    <when test="recruitStatus == 'before'">
+                        AND NOW() &lt; VA.Volun_Act_Recru_Begin
+                    </when>
+                    <when test="recruitStatus == 'recruiting'">
+                        AND NOW() BETWEEN VA.Volun_Act_Recru_Begin AND VA.Volun_Act_Recru_End
+                    </when>
+                    <when test="recruitStatus == 'closedRecruit'">
+                        AND NOW() &gt; VA.Volun_Act_Recru_End
+                        AND NOW() &lt; VA.Volun_Act_Proc_Begin
+                    </when>
+                    <when test="recruitStatus == 'ongoing'">
+                        AND NOW() BETWEEN VA.Volun_Act_Proc_Begin AND VA.Volun_Act_Proc_End
+                    </when>
+                    <when test="recruitStatus == 'done'">
+                        AND NOW() &gt; VA.Volun_Act_Proc_End
+                    </when>
+                </choose>
+            </if>
+
+            <!-- 기간 검색 -->
+            <if test="volunActProcBegin != null and volunActProcBegin != ''">
+                AND VA.Volun_Act_Proc_End &gt;= STR_TO_DATE(#{volunActProcBegin}, '%Y-%m-%d')
+            </if>
+            <if test="volunActProcEnd != null and volunActProcEnd != ''">
+                AND VA.Volun_Act_Proc_Begin &lt;= STR_TO_DATE(#{volunActProcEnd}, '%Y-%m-%d')
+            </if>
+
+            <!-- 통합 검색 -->
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    VA.Volun_Act_Title LIKE CONCAT('%', #{keyword}, '%')
+                    OR O.Organ_Name    LIKE CONCAT('%', #{keyword}, '%')
+                    <if test="keyword.matches('^[0-9]+$')">
+                        OR VA.Volun_Act_No = #{keyword}
+                    </if>
+                )
+            </if>
+
+        </where>
+    </select>
+
 
 </mapper>

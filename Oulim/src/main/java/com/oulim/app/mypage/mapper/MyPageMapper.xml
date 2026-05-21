@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mypage">
+
 	<!-- 1. 마이페이지 진입 -->
 	<select id="enterMyPage" parameterType="Map" resultType="int">
 		SELECT count(*) FROM tbl_user WHERE user_no = #{userNo} AND user_pw = #{userPw}
@@ -36,32 +37,32 @@
 		WHERE organ_no = #{organNo}
 	</select>
 
-
+    <!-- (변경) -->
 	<select id="userSummaryInfo" parameterType="int"
-		resultType="MyPageJoinDTO">
+        resultType="MyPageJoinDTO">
 
 <![CDATA[
 SELECT
     N.USER_NICKNAME AS userNickname,
-    NVL(H.VOLUN_COUNT, 0) AS volunActNo,
-    NVL(H.TOTAL_VOLUN_TIME, 0) AS totalVolunTime,
-    
-    (SELECT NVL(MAX(RANK_POINT), 0)
+    IFNULL(H.VOLUN_COUNT, 0) AS volunActNo,
+    IFNULL(H.TOTAL_VOLUN_TIME, 0) AS totalVolunTime,
+
+    (SELECT IFNULL(MAX(RANK_POINT), 0)
      FROM TBL_RANKING R
      WHERE R.USER_NO = N.USER_NO) AS rankPoint,
-     
-    (SELECT NVL(KKOMI_LEV, 1)
+
+    (SELECT IFNULL(KKOMI_LEV, 1)
      FROM TBL_KKOMI K
      WHERE K.USER_NO = N.USER_NO) AS kkomiLev,
-     
-    (SELECT NVL(SUM(TOTAL_AMOUNT), 0)
+
+    (SELECT IFNULL(SUM(TOTAL_AMOUNT), 0)
      FROM TBL_CURRENCY C
      WHERE C.USER_NO = N.USER_NO) AS totalAmount
 
 FROM TBL_USER N
 
 LEFT JOIN (
-    SELECT 
+    SELECT
         USER_NO,
         COUNT(LOG_NO) AS VOLUN_COUNT,
         SUM(VOLUN_TIME) AS TOTAL_VOLUN_TIME
@@ -71,81 +72,83 @@ LEFT JOIN (
 ON N.USER_NO = H.USER_NO
 
 WHERE N.USER_NO = #{userNo}
- ]]>
+]]>
 
-	</select>
+    </select>
 
-	<!-- 완료봉사, 예정봉사, 포인트 획득 간소화한 정보 출력 -->
+	<!-- 완료봉사, 예정봉사, 포인트 획득 간소화한 정보 출력 (변경)-->
 
 	<select id="miniPoint" parameterType="int"
-		resultType="MyPageJoinDTO">
+        resultType="MyPageJoinDTO">
 
 <![CDATA[
-SELECT LOG_REASON, TO_CHAR(LOG_DATE, 'YYYY.MM.DD') AS logDate, CHANGE_amount
-FROM TBL_LOG_POINT 
-WHERE USER_NO = #{userNo} AND CHANGE_AMOUNT > 0 
+SELECT
+    LOG_REASON,
+    DATE_FORMAT(LOG_DATE, '%Y.%m.%d') AS logDate,
+    CHANGE_AMOUNT
+FROM TBL_LOG_POINT
+WHERE USER_NO = #{userNo}
+  AND CHANGE_AMOUNT > 0
 ORDER BY LOG_NO DESC
 ]]>
 
-	</select>
+    </select>
 	
 	
-	<!-- 예정봉사 조회 미니 -->
+	<!-- 예정봉사 조회 미니 (변경)-->
 	<select id="miniComVol" parameterType="int"
-		resultType="MyPageJoinDTO">
+        resultType="MyPageJoinDTO">
 
 <![CDATA[
-SELECT *
-FROM (
-    SELECT tva.volun_act_title AS volunActTitle,
-           TO_CHAR(tva.Volun_Act_Proc_Begin, 'yyyy-mm-dd') AS comVolunActProcBegin,
-           TO_CHAR(tva.Volun_Act_Proc_End, 'yyyy-mm-dd') AS comVolunActProcEnd
-    FROM TBL_VOLUN_ACTIVITY tva
-    JOIN TBL_VOLUN_APPLY apl
-      ON tva.volun_act_no = apl.volun_act_no
-    WHERE apl.user_no = #{userNo}
+SELECT
+    tva.volun_act_title AS volunActTitle,
+    DATE_FORMAT(tva.Volun_Act_Proc_Begin, '%Y-%m-%d') AS comVolunActProcBegin,
+    DATE_FORMAT(tva.Volun_Act_Proc_End, '%Y-%m-%d') AS comVolunActProcEnd
+FROM TBL_VOLUN_ACTIVITY tva
+JOIN TBL_VOLUN_APPLY apl
+    ON tva.volun_act_no = apl.volun_act_no
+WHERE apl.user_no = #{userNo}
   AND apl.VOLUNACT_APPLYSTATUS = 1
-  AND tva.Volun_Act_Proc_Begin >= TRUNC(SYSDATE)
-      ORDER BY comVolunActProcEnd
-)
-WHERE ROWNUM = 1
+  AND tva.Volun_Act_Proc_Begin >= CURDATE()
+ORDER BY tva.Volun_Act_Proc_End
+LIMIT 1
 ]]>
 
-	</select>
+    </select>
 
-<!-- 완료한 봉사 미니 -->	
+<!-- 완료한 봉사 미니 (변경) -->	
 
 <select id="miniFinVol" parameterType="int" resultType="MyPageJoinDTO">
+
 <![CDATA[
-SELECT *
+SELECT
+    volunActTitle,
+    finVolunActProcEnd
 FROM (
-    SELECT 
-        volunActTitle,
-        finVolunActProcEnd
-    FROM (
-        SELECT 
-            Volun_Act_Title AS volunActTitle,
-            TO_CHAR(Volun_Act_Date, 'yyyy-mm-dd') AS finVolunActProcEnd,
-            Volun_Act_Date AS sortDate
-        FROM TBL_VOLUN_HISTORY
-        WHERE User_No = #{userNo}
+    SELECT
+        Volun_Act_Title AS volunActTitle,
+        DATE_FORMAT(Volun_Act_Date, '%Y-%m-%d') AS finVolunActProcEnd,
+        Volun_Act_Date AS sortDate
+    FROM TBL_VOLUN_HISTORY
+    WHERE User_No = #{userNo}
 
-        UNION ALL
+    UNION ALL
 
-        SELECT 
-            tvac.VOLUN_ACT_TITLE AS volunActTitle,
-            TO_CHAR(tvac.VOLUN_ACT_PROC_END, 'yyyy-mm-dd') AS finVolunActProcEnd,
-            tvac.VOLUN_ACT_PROC_END AS sortDate
-        FROM TBL_VOLUN_APPLY tvapp
-        JOIN TBL_VOLUN_ACTIVITY tvac
-            ON tvapp.VOLUN_ACT_NO = tvac.VOLUN_ACT_NO
-        WHERE tvapp.USER_NO = #{userNo}
-          AND tvac.VOLUN_ACT_PROC_END < SYSDATE
-    )
-    ORDER BY sortDate DESC
-)
-WHERE ROWNUM = 1
+    SELECT
+        tvac.VOLUN_ACT_TITLE AS volunActTitle,
+        DATE_FORMAT(tvac.VOLUN_ACT_PROC_END, '%Y-%m-%d') AS finVolunActProcEnd,
+        tvac.VOLUN_ACT_PROC_END AS sortDate
+    FROM TBL_VOLUN_APPLY tvapp
+    JOIN TBL_VOLUN_ACTIVITY tvac
+        ON tvapp.VOLUN_ACT_NO = tvac.VOLUN_ACT_NO
+    WHERE tvapp.USER_NO = #{userNo}
+      AND tvac.VOLUN_ACT_PROC_END < NOW()
+) A
+ORDER BY sortDate DESC
+LIMIT 1
+
 ]]>
+
 </select>
 
 
@@ -183,29 +186,28 @@ WHERE user_no = #{userNo}
 
 
 
-	<!-- 4. 예정된 봉사 목록 조회 -->
+	<!-- 4. 예정된 봉사 목록 조회 (변경) -->
 
 	<select id="comingVolunPage" parameterType="map" resultType="MyPageJoinDTO">
+
 <![CDATA[
-SELECT * FROM (
-    SELECT
-        ROW_NUMBER() OVER (ORDER BY tva.volun_act_no DESC) AS rnum,
-        tva.volun_act_no AS volunActNo,
-        tva.volun_act_title AS volunActTitle,
-        TO_CHAR(tva.Volun_Act_Proc_Begin,'yyyy-mm-dd') AS comVolunActProcBegin,
-        TO_CHAR(tva.Volun_Act_Proc_End,'yyyy-mm-dd') AS comVolunActProcEnd
-    FROM TBL_VOLUN_ACTIVITY tva
-    JOIN TBL_VOLUN_APPLY apl
-        ON tva.volun_act_no = apl.volun_act_no
-    WHERE apl.user_no = #{userNo}
+SELECT
+    tva.volun_act_no AS volunActNo,
+    tva.volun_act_title AS volunActTitle,
+    DATE_FORMAT(tva.Volun_Act_Proc_Begin, '%Y-%m-%d') AS comVolunActProcBegin,
+    DATE_FORMAT(tva.Volun_Act_Proc_End, '%Y-%m-%d') AS comVolunActProcEnd
+FROM TBL_VOLUN_ACTIVITY tva
+JOIN TBL_VOLUN_APPLY apl
+    ON tva.volun_act_no = apl.volun_act_no
+WHERE apl.user_no = #{userNo}
   AND apl.VOLUNACT_APPLYSTATUS = 1
-  AND tva.Volun_Act_Proc_Begin >= TRUNC(SYSDATE)
-      ORDER BY comVolunActProcEnd
-)
-WHERE rnum BETWEEN #{startRow} AND #{endRow}
+  AND tva.Volun_Act_Proc_Begin >= CURDATE()
+ORDER BY tva.Volun_Act_Proc_End
+LIMIT #{startRow}, #{pageSize}
 
 ]]>
-	</select>
+
+</select>
 	
 <select id="comingVolunTotal" parameterType="int" resultType="int">
 <![CDATA[
@@ -215,145 +217,141 @@ JOIN TBL_VOLUN_APPLY apl
     ON tva.volun_act_no = apl.volun_act_no
 WHERE apl.user_no = #{userNo}
   AND apl.VOLUNACT_APPLYSTATUS = 1
-  AND tva.Volun_Act_Proc_Begin >= TRUNC(SYSDATE)
+  AND tva.Volun_Act_Proc_Begin >= CURDATE()
 ]]>
 </select>
 
 
 
-	<!-- 5. 완료한 봉사 목록 조회 -->
+	<!-- 5. 완료한 봉사 목록 조회 (변경) -->
 
 <select id="finishVolunPage" parameterType="map" resultType="MyPageJoinDTO">
+
 <![CDATA[
-SELECT * FROM (
-    SELECT
-        ROW_NUMBER() OVER (ORDER BY tvac.VOLUN_ACT_PROC_END DESC) AS rnum,
-        tvapp.VOLUN_ACT_NO AS volunActNo,
-        tvac.VOLUN_ACT_TITLE AS volunActTitle,
-        TO_CHAR(tvac.VOLUN_ACT_PROC_END, 'yyyy-mm-dd') AS finVolunActProcEnd,
-        tvapp.VOLUNACT_APPLYSTATUS AS applyStatus,
-        tvapp.VOLUNACT_ATTENDANCE AS attendance
-    FROM TBL_VOLUN_APPLY tvapp
-    JOIN TBL_VOLUN_ACTIVITY tvac
-        ON tvapp.VOLUN_ACT_NO = tvac.VOLUN_ACT_NO
-    WHERE tvac.VOLUN_ACT_PROC_END < SYSDATE
-      AND tvapp.USER_NO = #{userNo}
-      
-      
-)
-WHERE rnum BETWEEN #{startRow} AND #{endRow}
+SELECT
+    tvapp.VOLUN_ACT_NO AS volunActNo,
+    tvac.VOLUN_ACT_TITLE AS volunActTitle,
+    DATE_FORMAT(tvac.VOLUN_ACT_PROC_END, '%Y-%m-%d') AS finVolunActProcEnd,
+    tvapp.VOLUNACT_APPLYSTATUS AS applyStatus,
+    tvapp.VOLUNACT_ATTENDANCE AS attendance
+FROM TBL_VOLUN_APPLY tvapp
+JOIN TBL_VOLUN_ACTIVITY tvac
+    ON tvapp.VOLUN_ACT_NO = tvac.VOLUN_ACT_NO
+WHERE tvac.VOLUN_ACT_PROC_END < NOW()
+  AND tvapp.USER_NO = #{userNo}
+ORDER BY tvac.VOLUN_ACT_PROC_END DESC
+LIMIT #{startRow}, #{pageSize}
+
 ]]>
+
 </select>
 	
-		<select id="finishVolunTotal" parameterType="int" resultType="int">
+<!-- (변경) -->
+<select id="finishVolunTotal" parameterType="int" resultType="int">
+
 <![CDATA[
-SELECT COUNT(*) 
+SELECT COUNT(*)
 FROM TBL_VOLUN_ACTIVITY tva
 JOIN TBL_VOLUN_APPLY apl
     ON tva.volun_act_no = apl.volun_act_no
-WHERE apl.user_no = #{userNo} 
-  
-  AND tva.VOLUN_ACT_PROC_END < SYSDATE
+WHERE apl.user_no = #{userNo}
+  AND tva.VOLUN_ACT_PROC_END < NOW()
 ]]>
-	</select>
+
+</select>
 
 
 
-	<!-- 6. 포인트 사용 내역 조회 -->
+	<!-- 6. 포인트 사용 내역 조회 (변경) -->
 
-	<select id="minusPoint" parameterType="map"
-		resultType="MyPageJoinDTO">
+<select id="minusPoint" parameterType="map"
+        resultType="MyPageJoinDTO">
+
 <![CDATA[
-SELECT * FROM (
-    SELECT 
-        ROW_NUMBER() OVER (ORDER BY LOG_NO DESC) AS rnum,
-        log_reason AS logReason,
-        TO_CHAR(LOG_DATE, 'YYYY.MM.DD') AS logDate,
-        change_amount AS changeAmount
-    FROM TBL_LOG_POINT
-    WHERE USER_NO = #{userNo} AND CHANGE_AMOUNT < 0
-)
-WHERE rnum BETWEEN #{startRow} AND #{endRow}
+SELECT
+    log_reason AS logReason,
+    DATE_FORMAT(LOG_DATE, '%Y.%m.%d') AS logDate,
+    change_amount AS changeAmount
+FROM TBL_LOG_POINT
+WHERE USER_NO = #{userNo}
+  AND CHANGE_AMOUNT < 0
+ORDER BY LOG_NO DESC
+LIMIT #{startRow}, #{endRow}
 ]]>
-	</select>
+
+</select>
 
 
 
-	<!-- 7. 포인트 적립 내역 조회 -->
+	<!-- 7. 포인트 적립 내역 조회 (변경) -->
 
-	<select id="plusPoint" parameterType="map"
-		resultType="MyPageJoinDTO">
+<select id="plusPoint" parameterType="map" resultType="MyPageJoinDTO">
 <![CDATA[
-SELECT * FROM (
-    SELECT 
-        ROW_NUMBER() OVER (ORDER BY LOG_NO DESC) AS rnum,
+SELECT *
+FROM (
+    SELECT
         log_reason AS logReason,
-        TO_CHAR(LOG_DATE, 'YYYY.MM.DD') AS logDate,
-        change_amount AS changeAmount
-    FROM TBL_LOG_POINT
-    WHERE USER_NO = #{userNo} AND CHANGE_AMOUNT > 0
-)
-WHERE rnum BETWEEN #{startRow} AND #{endRow}
+        DATE_FORMAT(LOG_DATE, '%Y.%m.%d') AS logDate,
+        change_amount AS changeAmount,
+        @rownum := @rownum + 1 AS rn
+    FROM TBL_LOG_POINT, (SELECT @rownum := 0) r
+    WHERE USER_NO = #{userNo}
+      AND CHANGE_AMOUNT > 0
+    ORDER BY LOG_NO DESC
+) t
+WHERE t.rn BETWEEN #{startRow} AND #{endRow}
 ]]>
-	</select>
+</select>
 
-	<select id="plusTotal" parameterType="int" resultType="int">
+<select id="plusTotal" parameterType="int" resultType="int">
 <![CDATA[ 
 SELECT COUNT(*) FROM TBL_LOG_POINT
 WHERE USER_NO = #{userNo} AND CHANGE_AMOUNT > 0
 ]]>
-	</select>
+</select>
 
-	<select id="minusTotal" parameterType="int" resultType="int">
+<select id="minusTotal" parameterType="int" resultType="int">
 <![CDATA[
 SELECT COUNT(*) FROM TBL_LOG_POINT
 WHERE USER_NO = #{userNo} AND CHANGE_AMOUNT < 0
 ]]>
-	</select>
+</select>
 
 
-	<!-- 8. 작성 글 조회 -->
+	<!-- 8. 작성 글 조회 (변경) -->
 
-	<select id="mypost" parameterType="map"
-		resultType="MyPageJoinDTO">
+<select id="mypost" parameterType="map" resultType="MyPageJoinDTO">
+
 <![CDATA[
-SELECT * FROM (
-    SELECT 
-        ROW_NUMBER() OVER (ORDER BY tcp.post_no DESC) AS rnum,
-        tcp.post_No AS postNo,
-        tcp.post_title AS postTitle,
-        TO_CHAR(tcp.post_Date, 'yyyy-mm-dd') AS postDate,
-        (SELECT COUNT(post_like_no)
-                          FROM tbl_post_like tpl
-                         WHERE tpl.post_no = tcp.post_no) AS postLikeNo
-    FROM tbl_community_post tcp
-    LEFT JOIN tbl_post_like tpl
-        ON tcp.post_no = tpl.post_no
-    WHERE tcp.user_no = #{userNo}
-)
-WHERE rnum BETWEEN #{startRow} AND #{endRow}
+SELECT
+    tcp.post_no AS postNo,
+    tcp.post_title AS postTitle,
+    DATE_FORMAT(tcp.post_date, '%Y-%m-%d') AS postDate,
+    (
+        SELECT COUNT(post_like_no)
+        FROM tbl_post_like tpl
+        WHERE tpl.post_no = tcp.post_no
+    ) AS postLikeNo
+FROM tbl_community_post tcp
+WHERE tcp.user_no = #{userNo}
+ORDER BY tcp.post_no DESC
+LIMIT #{startRow}, #{pageSize}
 ]]>
-	</select>
+</select>
 
-	<select id="getMyPostTotal" parameterType="int" resultType="int">
-
-
-		SELECT COUNT(*)
-		FROM tbl_community_post
-		WHERE user_no = #{userNo}
-
-	</select>
+<select id="getMyPostTotal" parameterType="int" resultType="int">
+	SELECT COUNT(*)
+	FROM tbl_community_post
+	WHERE user_no = #{userNo}
+</select>
 
 	<!-- 9. 회원탈퇴 -->
 
-	<update id="quit" parameterType="int">
-
-		UPDATE tbl_user SET
-		user_status = 0
-		WHERE user_no = #{userNo}
-
-
-	</update>
+<update id="quit" parameterType="int">
+    UPDATE tbl_user SET
+    user_status = 0
+    WHERE user_no = #{userNo}
+</update>
 
 
 

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="VolunteerManagement">
-	
-	<!--봉사 히스토리에 검색 엔 추가-->
+
+	<!-- 봉사 히스토리 추가 -->
 	<insert id="insertVolunHistory" parameterType="VolunApplyDTO">
-			INSERT INTO TBL_VOLUN_HISTORY (
-			LOG_NO,
+		INSERT INTO TBL_VOLUN_HISTORY (
 			USER_NO,
 			VOLUN_TIME,
 			VOLUN_ACT_DATE,
@@ -15,7 +15,6 @@
 			VOLUN_ACT_ADDRESS_DETIAL
 		)
 		SELECT
-			SEQ_TBL_VOLUN_HISTORY.NEXTVAL,
 			#{userNo},
 			(VOLUN_ACT_END_TIME - VOLUN_ACT_BEGIN_TIME),
 			VOLUN_ACT_PROC_BEGIN,
@@ -27,128 +26,114 @@
 		WHERE VOLUN_ACT_NO = #{volunActNo}
 	</insert>
 
-	<!--하루 봉사자 계산-->
+	<!-- 하루 봉사자 계산 -->
 	<select id="selectApplyCountByDate" parameterType="int" resultType="VolunApplyDTO">
 		SELECT
-			TO_CHAR(VOLUNACT_APPLYDATE, 'YYYY-MM-DD') AS volunActApplyDate,
+			DATE_FORMAT(VOLUNACT_APPLYDATE, '%Y-%m-%d') AS volunActApplyDate,
 			COUNT(*) AS currentCount
 		FROM TBL_VOLUN_APPLY
-		WHERE VOLUN_ACT_NO = #{volunActNo} and VOLUNACT_APPLYSTATUS IN(1,9) 
-		GROUP BY TO_CHAR(VOLUNACT_APPLYDATE, 'YYYY-MM-DD')
+		WHERE VOLUN_ACT_NO = #{volunActNo}
+		  AND VOLUNACT_APPLYSTATUS IN (1, 9)
+		GROUP BY DATE_FORMAT(VOLUNACT_APPLYDATE, '%Y-%m-%d')
 		ORDER BY volunActApplyDate
 	</select>
-	
-	<!--봉사자 총인원 -->
+
+	<!-- 봉사자 총인원 -->
 	<select id="selectVolunteerCount" parameterType="int" resultType="int">
 		SELECT COUNT(*)
 		FROM TBL_VOLUN_APPLY
-		WHERE VOLUN_ACT_NO = #{volunActNo} and VOLUNACT_APPLYSTATUS IN(1,9)
-	</select>	
-
-	<!--페이징 처리 퀴리문 -->
-	<select id="selectVolunteerPage" parameterType="map" resultType="VolunApplyDTO">
-		<![CDATA[
-		SELECT *
-		FROM (
-			SELECT ROWNUM AS rn, T.*
-			FROM (
-				SELECT
-					A.VOLUN_ACT_NO AS volunActNo,
-					A.USER_NO AS userNo,
-					U.USER_NAME AS userName,
-					TO_CHAR(U.USER_BIRTH, 'YYYY.MM.DD') AS userBirth,
-					FLOOR(MONTHS_BETWEEN(SYSDATE, U.USER_BIRTH) / 12) AS userAge,
-					TO_CHAR(A.VOLUNACT_APPLYDATE, 'YYYY.MM.DD') AS volunActApplyDate,
-					A.VOLUNACT_APPLYSTATUS AS volunActApplyStatus,
-					A.VOLUNACT_ATTENDANCE AS volunActAttendance
-				FROM TBL_VOLUN_APPLY A
-				JOIN TBL_USER U
-					ON A.USER_NO = U.USER_NO
-				WHERE A.VOLUN_ACT_NO = #{volunActNo} and A.VOLUNACT_APPLYSTATUS IN(1,9)
-				ORDER BY A.VOLUNACT_APPLYDATE DESC
-			) T
-			WHERE ROWNUM <= #{endRow}
-		)
-		WHERE rn >= #{startRow}
-		]]>
+		WHERE VOLUN_ACT_NO = #{volunActNo}
+		  AND VOLUNACT_APPLYSTATUS IN (1, 9)
 	</select>
 
-	<!--포인트 지급-->
+	<!-- 지원자 목록 페이징 -->
+	<select id="selectVolunteerPage" parameterType="map" resultType="VolunApplyDTO">
+		SELECT
+			A.VOLUN_ACT_NO AS volunActNo,
+			A.USER_NO AS userNo,
+			U.USER_NAME AS userName,
+			DATE_FORMAT(U.USER_BIRTH, '%Y.%m.%d') AS userBirth,
+			TIMESTAMPDIFF(YEAR, U.USER_BIRTH, CURDATE()) AS userAge,
+			DATE_FORMAT(A.VOLUNACT_APPLYDATE, '%Y.%m.%d') AS volunActApplyDate,
+			A.VOLUNACT_APPLYSTATUS AS volunActApplyStatus,
+			A.VOLUNACT_ATTENDANCE AS volunActAttendance
+		FROM TBL_VOLUN_APPLY A
+		JOIN TBL_USER U
+			ON A.USER_NO = U.USER_NO
+		WHERE A.VOLUN_ACT_NO = #{volunActNo}
+		  AND A.VOLUNACT_APPLYSTATUS IN (1, 9)
+		ORDER BY A.VOLUNACT_APPLYDATE DESC
+		LIMIT #{offset}, #{pageSize}
+	</select>
+
+	<!-- 포인트 지급 -->
 	<update id="updateCurrency" parameterType="PointJoinDTO">
-		MERGE INTO TBL_CURRENCY c
-		USING (
-			SELECT
-				#{currencyId} AS Currency_ID,
-				#{userNo} AS User_No,
-				#{changeAmount} AS Change_Amount
-			FROM DUAL
-		) src
-		ON (
-			c.Currency_ID = src.Currency_ID
-			AND c.User_No = src.User_No
+		INSERT INTO TBL_CURRENCY (
+			Currency_ID,
+			User_No,
+			Total_Amount
+		) VALUES (
+			#{currencyId},
+			#{userNo},
+			#{changeAmount}
 		)
-		WHEN MATCHED THEN
-			UPDATE SET c.Total_Amount = c.Total_Amount + src.Change_Amount
-		WHEN NOT MATCHED THEN
-			INSERT (Currency_ID, User_No, Total_Amount)
-			VALUES (src.Currency_ID, src.User_No, src.Change_Amount)
+		ON DUPLICATE KEY UPDATE
+			Total_Amount = Total_Amount + VALUES(Total_Amount)
 	</update>
 
 	<!-- 포인트 로그 저장 -->
 	<insert id="insertPointLog" parameterType="PointJoinDTO">
 		INSERT INTO TBL_LOG_POINT (
-			LOG_NO,
 			USER_NO,
 			CURRENCY_ID,
 			CHANGE_AMOUNT,
 			LOG_REASON,
 			LOG_DATE
 		) VALUES (
-			SEQ_TBL_LOG_POINT.NEXTVAL,
 			#{userNo},
 			#{currencyId},
 			#{changeAmount},
 			#{logReason},
-			SYSDATE
+			NOW()
 		)
 	</insert>
-	
+
 	<!-- 봉사자 상태 변경 -->
 	<update id="updateAttendanceStatus" parameterType="VolunApplyDTO">
 		UPDATE TBL_VOLUN_APPLY
 		SET VOLUNACT_APPLYSTATUS = 9,
-	    VOLUNACT_ATTENDANCE = #{volunActAttendance}
+		    VOLUNACT_ATTENDANCE = #{volunActAttendance}
 		WHERE VOLUN_ACT_NO = #{volunActNo}
-	 	AND USER_NO = #{userNo}
-	 	AND VOLUNACT_APPLYSTATUS = 1
+		  AND USER_NO = #{userNo}
+		  AND VOLUNACT_APPLYSTATUS = 1
 	</update>
-	
-	<!--봉사 삭제  -->
+
+	<!-- 봉사 삭제 -->
 	<delete id="volManageDelete" parameterType="int">
 		DELETE FROM TBL_VOLUN_ACTIVITY
 		WHERE VOLUN_ACT_NO = #{volunActNo}
 	</delete>
-	
+
 	<!-- 봉사 수정 -->
 	<update id="volManageUpdate" parameterType="VolunActivityDTO">
-	    UPDATE TBL_VOLUN_ACTIVITY
-	    SET
-	        VOLUN_ACT_TITLE = #{volunActTitle},
-	        VOLUN_ACT_RECRU_BEGIN = #{volunActRecruBegin},
-	        VOLUN_ACT_RECRU_END = #{volunActRecruEnd},
-	        VOLUN_ACT_PROC_BEGIN = #{volunActProcBegin},
-	        VOLUN_ACT_PROC_END = #{volunActProcEnd},
-	        VOLUN_ACT_POINT = #{volunActPoint},
-	        VOLUN_ACT_BEGIN_TIME = #{volunActBeginTime},
-	        VOLUN_ACT_END_TIME = #{volunActEndTime},
-	        VOLUN_ACT_ACT_TYPE = #{volunActActType},
-	        VOLUN_ACT_AGE_GROUP = #{volunActAgeGroup},
-	        VOLUN_ACT_ADDRESS = #{volunActAddress},
-	        VOLUN_ACT_ADDRESS_DETAIL = #{volunActAddressDetail},
-	        VOLUN_ACT_POSTNUM = #{volunActPostnum},
-	        VOLUN_ACT_RECRU_MAX_COUNT = #{volunActRecruMaxCount},
-	        VOLUN_ACT_DETAIL = #{volunActDetail}
-	    WHERE VOLUN_ACT_NO = #{volunActNo}
+		UPDATE TBL_VOLUN_ACTIVITY
+		SET
+			VOLUN_ACT_TITLE = #{volunActTitle},
+			VOLUN_ACT_RECRU_BEGIN = #{volunActRecruBegin},
+			VOLUN_ACT_RECRU_END = #{volunActRecruEnd},
+			VOLUN_ACT_PROC_BEGIN = #{volunActProcBegin},
+			VOLUN_ACT_PROC_END = #{volunActProcEnd},
+			VOLUN_ACT_POINT = #{volunActPoint},
+			VOLUN_ACT_BEGIN_TIME = #{volunActBeginTime},
+			VOLUN_ACT_END_TIME = #{volunActEndTime},
+			VOLUN_ACT_ACT_TYPE = #{volunActActType},
+			VOLUN_ACT_AGE_GROUP = #{volunActAgeGroup},
+			VOLUN_ACT_ADDRESS = #{volunActAddress},
+			VOLUN_ACT_ADDRESS_DETAIL = #{volunActAddressDetail},
+			VOLUN_ACT_POSTNUM = #{volunActPostnum},
+			VOLUN_ACT_RECRU_MAX_COUNT = #{volunActRecruMaxCount},
+			VOLUN_ACT_DETAIL = #{volunActDetail}
+		WHERE VOLUN_ACT_NO = #{volunActNo}
 	</update>
 
 	<!-- 봉사글 지원자 목록 조회 -->
@@ -157,9 +142,9 @@
 			A.VOLUN_ACT_NO AS volunActNo,
 			A.USER_NO AS userNo,
 			U.USER_NAME AS userName,
-			TO_CHAR(U.USER_BIRTH, 'YYYY.MM.DD') AS userBirth,
-			FLOOR(MONTHS_BETWEEN(SYSDATE, U.USER_BIRTH) / 12) AS userAge,
-			TO_CHAR(A.VOLUNACT_APPLYDATE, 'YYYY.MM.DD') AS volunActApplyDate,
+			DATE_FORMAT(U.USER_BIRTH, '%Y.%m.%d') AS userBirth,
+			TIMESTAMPDIFF(YEAR, U.USER_BIRTH, CURDATE()) AS userAge,
+			DATE_FORMAT(A.VOLUNACT_APPLYDATE, '%Y.%m.%d') AS volunActApplyDate,
 			A.VOLUNACT_APPLYSTATUS AS volunActApplyStatus,
 			A.VOLUNACT_ATTENDANCE AS volunActAttendance
 		FROM TBL_VOLUN_APPLY A
@@ -169,90 +154,87 @@
 		ORDER BY A.VOLUNACT_APPLYDATE DESC
 	</select>
 
-	<!--봉사 상세 조회  -->
+	<!-- 봉사 상세 조회 -->
 	<select id="volManageDetail" parameterType="int" resultType="VolunActivityDTO">
-	    SELECT
-	        VOLUN_ACT_NO,
-	        VOLUN_ACT_TITLE,
-	        TO_CHAR(VOLUN_ACT_RECRU_BEGIN, 'YYYY-MM-DD')as VOLUN_ACT_RECRU_BEGIN,
-	        TO_CHAR(VOLUN_ACT_RECRU_END, 'YYYY-MM-DD')as VOLUN_ACT_RECRU_END,
-	        TO_CHAR(VOLUN_ACT_PROC_BEGIN, 'YYYY-MM-DD')as VOLUN_ACT_PROC_BEGIN,
-	        TO_CHAR(VOLUN_ACT_PROC_END, 'YYYY-MM-DD')as VOLUN_ACT_PROC_END,
-	        VOLUN_ACT_POINT,
-	        VOLUN_ACT_BEGIN_TIME,
-	        VOLUN_ACT_END_TIME,
-	        VOLUN_ACT_ACT_TYPE,
-	        VOLUN_ACT_AGE_GROUP,
-	        VOLUN_ACT_ORGAN_NO,
-	        VOLUN_ACT_ADDRESS,
-	        VOLUN_ACT_ADDRESS_DETAIL,
-	        VOLUN_ACT_POSTNUM,
-	        VOLUN_ACT_RECRU_MAX_COUNT,
-	        VOLUN_ACT_DETAIL,
-	        CASE
-	            WHEN SYSDATE &lt; VOLUN_ACT_RECRU_BEGIN THEN '모집예정'
-	            WHEN SYSDATE &lt; VOLUN_ACT_RECRU_END + 1 THEN '모집중'
-	            ELSE '모집마감'
-	        END AS RECRU_STATUS
-	    FROM TBL_VOLUN_ACTIVITY
-	    WHERE VOLUN_ACT_NO = #{volunActNo}
+		SELECT
+			VOLUN_ACT_NO AS volunActNo,
+			VOLUN_ACT_TITLE AS volunActTitle,
+			DATE_FORMAT(VOLUN_ACT_RECRU_BEGIN, '%Y-%m-%d') AS volunActRecruBegin,
+			DATE_FORMAT(VOLUN_ACT_RECRU_END, '%Y-%m-%d') AS volunActRecruEnd,
+			DATE_FORMAT(VOLUN_ACT_PROC_BEGIN, '%Y-%m-%d') AS volunActProcBegin,
+			DATE_FORMAT(VOLUN_ACT_PROC_END, '%Y-%m-%d') AS volunActProcEnd,
+			VOLUN_ACT_POINT AS volunActPoint,
+			VOLUN_ACT_BEGIN_TIME AS volunActBeginTime,
+			VOLUN_ACT_END_TIME AS volunActEndTime,
+			VOLUN_ACT_ACT_TYPE AS volunActActType,
+			VOLUN_ACT_AGE_GROUP AS volunActAgeGroup,
+			VOLUN_ACT_ORGAN_NO AS volunActOrganNo,
+			VOLUN_ACT_ADDRESS AS volunActAddress,
+			VOLUN_ACT_ADDRESS_DETAIL AS volunActAddressDetail,
+			VOLUN_ACT_POSTNUM AS volunActPostnum,
+			VOLUN_ACT_RECRU_MAX_COUNT AS volunActRecruMaxCount,
+			VOLUN_ACT_DETAIL AS volunActDetail,
+			CASE
+				WHEN NOW() &lt; VOLUN_ACT_RECRU_BEGIN THEN '모집예정'
+				WHEN NOW() &lt; DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY) THEN '모집중'
+				ELSE '모집마감'
+			END AS recruStatus
+		FROM TBL_VOLUN_ACTIVITY
+		WHERE VOLUN_ACT_NO = #{volunActNo}
 	</select>
 
-	<!--신청서 등록  -->
+	<!-- 신청서 등록 -->
 	<insert id="volActivityInsert" parameterType="VolunActivityDTO">
-	    INSERT INTO TBL_VOLUN_ACTIVITY (
-	        VOLUN_ACT_NO,
-	        VOLUN_ACT_TITLE,
-	        VOLUN_ACT_RECRU_BEGIN,
-	        VOLUN_ACT_RECRU_END,
-	        VOLUN_ACT_PROC_BEGIN,
-	        VOLUN_ACT_PROC_END,
-	        VOLUN_ACT_POINT,
-	        VOLUN_ACT_BEGIN_TIME,
-	        VOLUN_ACT_END_TIME,
-	        VOLUN_ACT_ACT_TYPE,
-	        VOLUN_ACT_AGE_GROUP,
-	        VOLUN_ACT_ORGAN_NO,
-	        VOLUN_ACT_ADDRESS,
-	        VOLUN_ACT_ADDRESS_DETAIL,
-	        VOLUN_ACT_POSTNUM,
-	        VOLUN_ACT_RECRU_MAX_COUNT,
-	        VOLUN_ACT_DETAIL
-	    ) VALUES (
-	        SEQ_TBL_VOLUN_ACTIVITY.NEXTVAL,
-            #{volunActTitle},
-            #{volunActRecruBegin},
-            #{volunActRecruEnd},
-            #{volunActProcBegin},
-            #{volunActProcEnd},
-            #{volunActPoint},
-            #{volunActBeginTime},
-            #{volunActEndTime},
-            #{volunActActType},
-            #{volunActAgeGroup},
-            #{volunActOrganNo},
-            #{volunActAddress},
-            #{volunActAddressDetail},
-            #{volunActPostnum},
-            #{volunActRecruMaxCount},
-            #{volunActDetail}
-	    )
+		INSERT INTO TBL_VOLUN_ACTIVITY (
+			VOLUN_ACT_TITLE,
+			VOLUN_ACT_RECRU_BEGIN,
+			VOLUN_ACT_RECRU_END,
+			VOLUN_ACT_PROC_BEGIN,
+			VOLUN_ACT_PROC_END,
+			VOLUN_ACT_POINT,
+			VOLUN_ACT_BEGIN_TIME,
+			VOLUN_ACT_END_TIME,
+			VOLUN_ACT_ACT_TYPE,
+			VOLUN_ACT_AGE_GROUP,
+			VOLUN_ACT_ORGAN_NO,
+			VOLUN_ACT_ADDRESS,
+			VOLUN_ACT_ADDRESS_DETAIL,
+			VOLUN_ACT_POSTNUM,
+			VOLUN_ACT_RECRU_MAX_COUNT,
+			VOLUN_ACT_DETAIL
+		) VALUES (
+			#{volunActTitle},
+			#{volunActRecruBegin},
+			#{volunActRecruEnd},
+			#{volunActProcBegin},
+			#{volunActProcEnd},
+			#{volunActPoint},
+			#{volunActBeginTime},
+			#{volunActEndTime},
+			#{volunActActType},
+			#{volunActAgeGroup},
+			#{volunActOrganNo},
+			#{volunActAddress},
+			#{volunActAddressDetail},
+			#{volunActPostnum},
+			#{volunActRecruMaxCount},
+			#{volunActDetail}
+		)
 	</insert>
 
-	<!--검색  -->
-	<select id="volManageSelect" parameterType="VolunActivityDTO"
-		resultType="VolunActivityDTO">
+	<!-- 검색 -->
+	<select id="volManageSelect" parameterType="VolunActivityDTO" resultType="VolunActivityDTO">
 		SELECT
-		VOLUN_ACT_NO,
-		VOLUN_ACT_TITLE,
-		VOLUN_ACT_ACT_TYPE,
-		TO_CHAR(VOLUN_ACT_RECRU_BEGIN, 'YYYY-MM-DD') AS VOLUN_ACT_RECRU_BEGIN,
-        TO_CHAR(VOLUN_ACT_RECRU_END, 'YYYY-MM-DD') AS VOLUN_ACT_RECRU_END,
-		CASE
-		WHEN SYSDATE &lt; VOLUN_ACT_RECRU_BEGIN THEN '모집예정'
-		WHEN SYSDATE &lt; VOLUN_ACT_RECRU_END + 1 THEN '모집중'
-		ELSE '모집마감'
-		END AS RECRU_STATUS	
+			VOLUN_ACT_NO AS volunActNo,
+			VOLUN_ACT_TITLE AS volunActTitle,
+			VOLUN_ACT_ACT_TYPE AS volunActActType,
+			DATE_FORMAT(VOLUN_ACT_RECRU_BEGIN, '%Y-%m-%d') AS volunActRecruBegin,
+			DATE_FORMAT(VOLUN_ACT_RECRU_END, '%Y-%m-%d') AS volunActRecruEnd,
+			CASE
+				WHEN NOW() &lt; VOLUN_ACT_RECRU_BEGIN THEN '모집예정'
+				WHEN NOW() &lt; DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY) THEN '모집중'
+				ELSE '모집마감'
+			END AS recruStatus
 		FROM TBL_VOLUN_ACTIVITY
 		WHERE VOLUN_ACT_ORGAN_NO = #{volunActOrganNo}
 
@@ -262,108 +244,110 @@
 
 		<if test="recruitStatus != null and recruitStatus != ''">
 			AND (
-			(#{recruitStatus} = 'before-recruit' AND SYSDATE &lt;
-			VOLUN_ACT_RECRU_BEGIN)
-			OR (#{recruitStatus} = 'recruit' AND SYSDATE
-			&gt;= VOLUN_ACT_RECRU_BEGIN AND SYSDATE &lt; VOLUN_ACT_RECRU_END + 1)
-			OR (#{recruitStatus} = 'recruit-end' AND SYSDATE &gt;=
-			VOLUN_ACT_RECRU_END + 1)
+				(#{recruitStatus} = 'before-recruit' AND NOW() &lt; VOLUN_ACT_RECRU_BEGIN)
+				OR
+				(#{recruitStatus} = 'recruit'
+					AND NOW() &gt;= VOLUN_ACT_RECRU_BEGIN
+					AND NOW() &lt; DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY))
+				OR
+				(#{recruitStatus} = 'recruit-end'
+					AND NOW() &gt;= DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY))
 			)
 		</if>
 
 		<if test="keyword != null and keyword != ''">
-			AND VOLUN_ACT_TITLE LIKE '%' || #{keyword} || '%'
+			AND VOLUN_ACT_TITLE LIKE CONCAT('%', #{keyword}, '%')
 		</if>
 
 		ORDER BY VOLUN_ACT_RECRU_END DESC
 	</select>
-	<!--페이징 추가 검색 조건-->
+
+	<!-- 페이징 추가 검색 조건 -->
 	<select id="volManageSelectPage" parameterType="map" resultType="VolunActivityDTO">
-		<![CDATA[
-		SELECT *
-		FROM (
-			SELECT ROWNUM AS rn, T.*
-			FROM (
-				SELECT
-					VOLUN_ACT_NO,
-					VOLUN_ACT_TITLE,
-					VOLUN_ACT_ACT_TYPE,
-					TO_CHAR(VOLUN_ACT_RECRU_BEGIN, 'YYYY-MM-DD') AS VOLUN_ACT_RECRU_BEGIN,
-					TO_CHAR(VOLUN_ACT_RECRU_END, 'YYYY-MM-DD') AS VOLUN_ACT_RECRU_END,
-					TO_CHAR(Volun_Act_Proc_Begin, 'YYYY-MM-DD') AS Volun_Act_Proc_Begin,
-					TO_CHAR(Volun_Act_Proc_End, 'YYYY-MM-DD') AS Volun_Act_Proc_End,
-					CASE
-						WHEN SYSDATE < VOLUN_ACT_RECRU_BEGIN THEN '모집예정'
-						WHEN SYSDATE < VOLUN_ACT_RECRU_END + 1 THEN '모집중'
-						ELSE '모집마감'
-					END AS RECRU_STATUS
-				FROM TBL_VOLUN_ACTIVITY
-				WHERE VOLUN_ACT_ORGAN_NO = #{volunActOrganNo}
-		]]>
-		
+		SELECT
+			VOLUN_ACT_NO AS volunActNo,
+			VOLUN_ACT_TITLE AS volunActTitle,
+			VOLUN_ACT_ACT_TYPE AS volunActActType,
+			DATE_FORMAT(VOLUN_ACT_RECRU_BEGIN, '%Y-%m-%d') AS volunActRecruBegin,
+			DATE_FORMAT(VOLUN_ACT_RECRU_END, '%Y-%m-%d') AS volunActRecruEnd,
+			DATE_FORMAT(VOLUN_ACT_PROC_BEGIN, '%Y-%m-%d') AS volunActProcBegin,
+			DATE_FORMAT(VOLUN_ACT_PROC_END, '%Y-%m-%d') AS volunActProcEnd,
+			CASE
+				WHEN NOW() &lt; VOLUN_ACT_RECRU_BEGIN THEN '모집예정'
+				WHEN NOW() &lt; DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY) THEN '모집중'
+				ELSE '모집마감'
+			END AS recruStatus
+		FROM TBL_VOLUN_ACTIVITY
+		WHERE VOLUN_ACT_ORGAN_NO = #{volunActOrganNo}
+
 		<if test="actType != null and actType != ''">
 			AND VOLUN_ACT_ACT_TYPE = #{actType}
 		</if>
-	
+
 		<if test="recruitStatus != null and recruitStatus != ''">
 			AND (
-				(#{recruitStatus} = 'before-recruit' AND SYSDATE &lt; VOLUN_ACT_RECRU_BEGIN)
-				OR (#{recruitStatus} = 'recruit' AND SYSDATE &gt;= VOLUN_ACT_RECRU_BEGIN AND SYSDATE &lt; VOLUN_ACT_RECRU_END + 1)
-				OR (#{recruitStatus} = 'recruit-end' AND SYSDATE &gt;= VOLUN_ACT_RECRU_END + 1)
+				(#{recruitStatus} = 'before-recruit' AND NOW() &lt; VOLUN_ACT_RECRU_BEGIN)
+				OR
+				(#{recruitStatus} = 'recruit'
+					AND NOW() &gt;= VOLUN_ACT_RECRU_BEGIN
+					AND NOW() &lt; DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY))
+				OR
+				(#{recruitStatus} = 'recruit-end'
+					AND NOW() &gt;= DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY))
 			)
 		</if>
-	
+
 		<if test="keyword != null and keyword != ''">
-			AND VOLUN_ACT_TITLE LIKE '%' || #{keyword} || '%'
+			AND VOLUN_ACT_TITLE LIKE CONCAT('%', #{keyword}, '%')
 		</if>
-	
-		<![CDATA[
-				ORDER BY
-	            CASE
-	                WHEN TRUNC(SYSDATE) < VOLUN_ACT_RECRU_BEGIN THEN 2
-	                WHEN TRUNC(SYSDATE) <= VOLUN_ACT_RECRU_END THEN 1
-	                ELSE 3
-	            END,
-	            CASE
-	                WHEN TRUNC(SYSDATE) >= VOLUN_ACT_RECRU_BEGIN
-	                     AND TRUNC(SYSDATE) <= VOLUN_ACT_RECRU_END
-	                THEN VOLUN_ACT_RECRU_END
-	                WHEN TRUNC(SYSDATE) < VOLUN_ACT_RECRU_BEGIN
-	                THEN VOLUN_ACT_RECRU_BEGIN
-	            END ASC,
-	            CASE
-	                WHEN TRUNC(SYSDATE) > VOLUN_ACT_RECRU_END
-	                THEN VOLUN_ACT_RECRU_END
-	            END DESC
-			) T
-			WHERE ROWNUM <= #{endRow}
-		)
-		WHERE rn >= #{startRow}
-		]]>
+
+		ORDER BY
+			CASE
+				WHEN CURDATE() &lt; VOLUN_ACT_RECRU_BEGIN THEN 2
+				WHEN CURDATE() &lt;= VOLUN_ACT_RECRU_END THEN 1
+				ELSE 3
+			END,
+			CASE
+				WHEN CURDATE() &gt;= VOLUN_ACT_RECRU_BEGIN
+				 AND CURDATE() &lt;= VOLUN_ACT_RECRU_END
+				THEN VOLUN_ACT_RECRU_END
+				WHEN CURDATE() &lt; VOLUN_ACT_RECRU_BEGIN
+				THEN VOLUN_ACT_RECRU_BEGIN
+			END ASC,
+			CASE
+				WHEN CURDATE() &gt; VOLUN_ACT_RECRU_END
+				THEN VOLUN_ACT_RECRU_END
+			END DESC
+
+		LIMIT #{offset}, #{pageSize}
 	</select>
-	
-	<!--검색 전체 조회 검색-->
+
+	<!-- 검색 전체 조회 개수 -->
 	<select id="volManageSelectCount" parameterType="VolunActivityDTO" resultType="int">
 		SELECT COUNT(VOLUN_ACT_NO)
 		FROM TBL_VOLUN_ACTIVITY
 		WHERE VOLUN_ACT_ORGAN_NO = #{volunActOrganNo}
-	
+
 		<if test="actType != null and actType != ''">
 			AND VOLUN_ACT_ACT_TYPE = #{actType}
 		</if>
-	
+
 		<if test="recruitStatus != null and recruitStatus != ''">
 			AND (
-				(#{recruitStatus} = 'before-recruit' AND SYSDATE &lt; VOLUN_ACT_RECRU_BEGIN)
-				OR (#{recruitStatus} = 'recruit' AND SYSDATE &gt;= VOLUN_ACT_RECRU_BEGIN AND SYSDATE &lt; VOLUN_ACT_RECRU_END + 1)
-				OR (#{recruitStatus} = 'recruit-end' AND SYSDATE &gt;= VOLUN_ACT_RECRU_END + 1)
+				(#{recruitStatus} = 'before-recruit' AND NOW() &lt; VOLUN_ACT_RECRU_BEGIN)
+				OR
+				(#{recruitStatus} = 'recruit'
+					AND NOW() &gt;= VOLUN_ACT_RECRU_BEGIN
+					AND NOW() &lt; DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY))
+				OR
+				(#{recruitStatus} = 'recruit-end'
+					AND NOW() &gt;= DATE_ADD(VOLUN_ACT_RECRU_END, INTERVAL 1 DAY))
 			)
 		</if>
-	
+
 		<if test="keyword != null and keyword != ''">
-			AND VOLUN_ACT_TITLE LIKE '%' || #{keyword} || '%'
+			AND VOLUN_ACT_TITLE LIKE CONCAT('%', #{keyword}, '%')
 		</if>
 	</select>
-	
-	
+
 </mapper>

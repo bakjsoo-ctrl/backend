@@ -2,11 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="AdmVolManDeta">
 
-<update id="deleteApplyUser" parameterType="map">
-    UPDATE TBL_VOLUN_APPLY
-    SET VOLUNACT_APPLYSTATUS = 0
-    WHERE VOLUN_ACT_NO = #{volunActNo}
-      AND USER_NO = #{userNo}
-</update>
+    <!-- 봉사 신청자 취소 처리 -->
+    <update id="deleteApplyUser" parameterType="map">
+        UPDATE TBL_VOLUN_APPLY
+        SET VOLUNACT_APPLYSTATUS = 0
+        WHERE VOLUN_ACT_NO = #{volunActNo}
+          AND USER_NO = #{userNo}
+    </update>
 
 </mapper>

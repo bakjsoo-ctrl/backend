@@ -46,8 +46,10 @@ public class VolunMangetListController implements Execute {
 		}
 
 		int rowCount = 10;
-		int endRow = page * rowCount;
-		int startRow = endRow - (rowCount - 1);
+
+		// MySQL LIMIT용 페이징
+		int offset = (page - 1) * rowCount;
+		int pageSize = rowCount;
 
 		volunActivityDTO.setVolunActOrganNo(organNo);
 		volunActivityDTO.setActType(actType);
@@ -62,8 +64,10 @@ public class VolunMangetListController implements Execute {
 		pageMap.put("actType", actType);
 		pageMap.put("recruitStatus", recruitStatus);
 		pageMap.put("keyword", keyword);
-		pageMap.put("startRow", startRow);
-		pageMap.put("endRow", endRow);
+
+		// MySQL mapper에서 사용하는 값
+		pageMap.put("offset", offset);
+		pageMap.put("pageSize", pageSize);
 
 		List<VolunActivityDTO> list = volunteerManagementDAO.selectVolManagePage(pageMap);
 
