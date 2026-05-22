@@ -139,7 +139,7 @@
         </where>
 
         ORDER BY tcp.post_date DESC
-        LIMIT #{startRow}, #{endRow}
+        LIMIT #{offset}, #{limit}
 
     </select>
 
@@ -191,7 +191,7 @@
         ORDER BY tcc.post_date DESC,
                  tcc.comment_no DESC
 
-        LIMIT #{startRow}, #{endRow}
+        LIMIT #{offset}, #{limit}
 
     </select>
 

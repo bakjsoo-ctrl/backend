@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.common.util.DefineType;
 import com.oulim.app.community.dao.CommunityDAO;
 import com.oulim.app.community.dao.CommunityFileDAO;
@@ -60,30 +61,22 @@ public class CommunityReadOkController implements Execute{
 	    int totalComment = commuDAO.getTotalComment(postNo);
 	    int page = 1;
 	    
-		int startRow = (page - 1) * DefineType.ROWCOUNT_PER_PAGE + 1;
-		int endRow = startRow + DefineType.ROWCOUNT_PER_PAGE - 1;
+	    BasePagenation pagenation = new BasePagenation(page, totalComment);
+	    
 		Map<String, Integer> rowMap = new HashMap<>();
 		rowMap.put("postNo", postNo);
-		rowMap.put("startRow", startRow);
-		rowMap.put("endRow", endRow);
+		rowMap.put("limit", pagenation.getLimit());
+		rowMap.put("offset", pagenation.getOffset());
 	    // 댓글 가져오기
 	    List<CommunityCommentDTO> commentList = commuDAO.selectCommentList(rowMap);
 	    request.setAttribute("commentList", commentList);
 	    
-	    int realEndPage = (int)Math.ceil(totalComment / (double)DefineType.ROWCOUNT_PER_PAGE);
-	    if(realEndPage == 0) {
-	    	realEndPage = 1;
-	    }		int endPage = (int) (Math.ceil(page / (double) DefineType.MAX_PAGE_COUNT) * DefineType.MAX_PAGE_COUNT);
-	    
-	    int startPage = endPage - (DefineType.MAX_PAGE_COUNT - 1);
-		if(startPage < 1) {
-			startPage = 1;
-		}
+	    int startPage = pagenation.getStartPage();
+	    int endPage = pagenation.getEndPage();
+
 		
-		endPage = Math.min(endPage,  realEndPage);
-		
-		boolean prev = startPage > 1;
-		boolean next = endPage < realEndPage;
+		boolean prev = pagenation.getIsPrev();
+		boolean next = pagenation.getIsNext();
 		
 		request.setAttribute("page", page);
 		request.setAttribute("startPage", startPage);
