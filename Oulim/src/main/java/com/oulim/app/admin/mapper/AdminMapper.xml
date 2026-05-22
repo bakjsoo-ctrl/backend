@@ -69,7 +69,7 @@
         WHERE tu.user_type = 2
           AND tu.user_status = 2
         ORDER BY tu.user_no DESC
-        LIMIT #{pageSize} OFFSET #{offset}
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
 
