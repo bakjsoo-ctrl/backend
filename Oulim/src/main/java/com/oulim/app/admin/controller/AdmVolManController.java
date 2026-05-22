@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.oulim.app.admin.dao.AdmVolMangDAO;
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.common.util.DefineType;
 import com.oulim.app.volunteer.dto.VolunActivityDTO;
 
@@ -43,20 +44,22 @@ public class AdmVolManController implements Execute {
         // 페이징 (임시)
 		String temp = request.getParameter("page");
         int page = (temp == null) ? 1 : Integer.valueOf(temp);
+        int total = dao.selectAdminVolunCount(dto);
 		if(page <1) page = 1;
+		
+		BasePagenation pagenation = new BasePagenation(page, total);
 
-		int startRow = (page - 1) * DefineType.ROWCOUNT_PER_PAGE + 1;
-		int endRow = startRow + DefineType.ROWCOUNT_PER_PAGE - 1;
+		int startRow = (page - 1) * BasePagenation.ROWCOUNT_PER_PAGE + 1;
+		int endRow = startRow + BasePagenation.ROWCOUNT_PER_PAGE - 1;
 
         dto.setStartRow(startRow);
         dto.setEndRow(endRow);
         
-        int total = dao.selectAdminVolunCount(dto);
 
-       int realEndPage = (int) (Math.ceil(total / (double) DefineType.ROWCOUNT_PER_PAGE));
-       int endPage = (int) (Math.ceil(page / (double) DefineType.MAX_PAGE_COUNT) * DefineType.MAX_PAGE_COUNT);
+       int realEndPage = (int) (Math.ceil(total / (double) BasePagenation.ROWCOUNT_PER_PAGE));
+       int endPage = (int) (Math.ceil(page / (double) BasePagenation.MAX_PAGE_COUNT) * BasePagenation.MAX_PAGE_COUNT);
        
-       int startPage = endPage - (DefineType.MAX_PAGE_COUNT - 1);
+       int startPage = endPage - (BasePagenation.MAX_PAGE_COUNT - 1);
        
        endPage = Math.min(endPage,  realEndPage);
        

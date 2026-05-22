@@ -13,6 +13,7 @@ import com.oulim.app.admin.dao.AdminDAO;
 import com.oulim.app.admin.dto.AdminCompanyCertificationDTO;
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.common.util.DefineType;
 
 public class AdminCompanyCertificationController implements Execute{
@@ -35,20 +36,21 @@ public class AdminCompanyCertificationController implements Execute{
 		int page = (temp == null) ? 1 : Integer.valueOf(temp);
 		if(page <1) page = 1;
 
-		int startRow = (page - 1) * DefineType.ROWCOUNT_PER_PAGE + 1;
-		int endRow = startRow + DefineType.ROWCOUNT_PER_PAGE - 1;
+		int total = adminDAO.getCountUnApprovedOrganUser();
+		BasePagenation pagenation = new BasePagenation(page, total);
+		int limit = pagenation.getLimit();
+		int offset = pagenation.getOffset();
 		
 		Map<String, Integer> pageMap = new HashMap<>();
-		pageMap.put("startRow", startRow);
-		pageMap.put("endRow", endRow);
+		pageMap.put("limit", limit);
+		pageMap.put("offset", offset);
 		
 		List<AdminCompanyCertificationDTO> admCompCertDTO = adminDAO.getRequireApprovedOrganUser(pageMap);
-		int total = adminDAO.getCountUnApprovedOrganUser();
 		request.setAttribute("requireMemberList", admCompCertDTO);
-		int realEndPage = (int) (Math.ceil(total / (double) DefineType.ROWCOUNT_PER_PAGE));
-		int endPage = (int) (Math.ceil(page / (double) DefineType.MAX_PAGE_COUNT) * DefineType.MAX_PAGE_COUNT);
+		int realEndPage = pagenation.getRealEndPage();
+		int endPage = pagenation.getEndPage();
 		
-		int startPage = endPage - (DefineType.MAX_PAGE_COUNT - 1);
+		int startPage = pagenation.getStartPage();
 		
 		endPage = Math.min(endPage,  realEndPage);
 		
