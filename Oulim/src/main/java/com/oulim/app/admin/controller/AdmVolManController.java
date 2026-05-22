@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.oulim.app.admin.dao.AdmVolMangDAO;
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
-import com.oulim.app.common.util.DefineType;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.volunteer.dto.VolunActivityDTO;
 
 public class AdmVolManController implements Execute {
@@ -50,27 +50,34 @@ public class AdmVolManController implements Execute {
 //
 //        dto.setStartRow(startRow);
 //        dto.setEndRow(endRow);
-		
-		int offset = (page - 1) * DefineType.ROWCOUNT_PER_PAGE;
-		dto.setPageSize(DefineType.ROWCOUNT_PER_PAGE);
-		dto.setOffset(offset);
-		
-		
-		
-		
-		
-        
         int total = dao.selectAdminVolunCount(dto);
+		if(page <1) page = 1;
+		
+		BasePagenation pagenation = new BasePagenation(page, total);
 
-       int realEndPage = (int) (Math.ceil(total / (double) DefineType.ROWCOUNT_PER_PAGE));
-       int endPage = (int) (Math.ceil(page / (double) DefineType.MAX_PAGE_COUNT) * DefineType.MAX_PAGE_COUNT);
+//		int startRow = (page - 1) * BasePagenation.ROWCOUNT_PER_PAGE + 1;
+//		int endRow = startRow + BasePagenation.ROWCOUNT_PER_PAGE - 1;
+		
+		int limit = pagenation.getLimit();
+		int offset = pagenation.getOffset();
+
+        dto.setStartRow(limit);
+        dto.setEndRow(offset);
+        
+
+//       int realEndPage = (int) (Math.ceil(total / (double) BasePagenation.ROWCOUNT_PER_PAGE));
+//       int endPage = (int) (Math.ceil(page / (double) BasePagenation.MAX_PAGE_COUNT) * BasePagenation.MAX_PAGE_COUNT);
+//       int startPage = endPage - (BasePagenation.MAX_PAGE_COUNT - 1);
+//       endPage = Math.min(endPage,  realEndPage);
+        
+//       boolean prev = startPage > 1;
+//       boolean next = endPage < realEndPage;
+       int endPage = pagenation.getEndPage();
        
-       int startPage = endPage - (DefineType.MAX_PAGE_COUNT - 1);
+       int startPage = pagenation.getStartPage();
        
-       endPage = Math.min(endPage,  realEndPage);
-       
-       boolean prev = startPage > 1;
-       boolean next = endPage < realEndPage;
+       boolean prev = pagenation.getIsPrev();
+       boolean next = pagenation.getIsNext();
        
         // =========================
         // 3. DB 조회

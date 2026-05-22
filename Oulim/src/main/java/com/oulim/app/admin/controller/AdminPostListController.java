@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.oulim.app.admin.dao.AdminPostDAO;
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.community.dao.CommunityDAO;
 import com.oulim.app.community.dto.CommunityPostJoinDTO;
 
@@ -42,29 +43,23 @@ public class AdminPostListController implements Execute{
         }
 		
 		
-		int rowCount = 10;
-		int pageCount = 10;
-		int startRow = (page - 1) * rowCount + 1;
-		int endRow = startRow + rowCount - 1;
-
-		
+		AdminPostDAO adminPostDAO = new AdminPostDAO();
 		Map<String, Object> pageMap = new HashMap<>();
-		pageMap.put("startRow", startRow);
-		pageMap.put("endRow", endRow);
+
+		int total = adminPostDAO.getTotal(pageMap);
+        
+		BasePagenation pagenation = new BasePagenation(page,total);
+		
+		pageMap.put("limit", pagenation.getLimit());
+		pageMap.put("offset", pagenation.getOffset());
 		pageMap.put("searchType", searchType);
 		pageMap.put("keyword", keyword);
 		
-		
-		
-		AdminPostDAO adminPostDAO = new AdminPostDAO();
-
 		List<CommunityPostJoinDTO> postList = adminPostDAO.selectList(pageMap);
-		int total = adminPostDAO.getTotal(pageMap);
 		
-		int realEndPage = (int) Math.ceil(total / (double) rowCount);
-		int endPage = (int) (Math.ceil(page / (double) pageCount) * pageCount);
-		int startPage = endPage - (pageCount - 1);
-		endPage = Math.min(endPage, realEndPage);
+		int realEndPage = pagenation.getRealEndPage();
+		int endPage = pagenation.getEndPage();
+		int startPage = pagenation.getStartPage();
 		
 		request.setAttribute("postList", postList);
 		request.setAttribute("page", page);

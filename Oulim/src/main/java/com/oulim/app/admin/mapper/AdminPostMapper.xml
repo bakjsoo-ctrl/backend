@@ -33,7 +33,7 @@
             </if>
         </where>
         ORDER BY tcp.post_date DESC
-        LIMIT #{pageSize} OFFSET #{offset}
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
 
