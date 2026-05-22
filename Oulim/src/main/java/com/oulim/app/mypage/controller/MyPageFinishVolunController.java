@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.mypage.dao.MyPageJoinDAO;
 import com.oulim.app.mypage.dto.MyPageJoinDTO;
 
@@ -34,16 +35,18 @@ public class MyPageFinishVolunController implements Execute {
 		// 페이지 번호
 		int page = request.getParameter("page") == null ? 1 : Integer.parseInt(request.getParameter("page"));
 		int rowCount = 10;
+		MyPageJoinDAO dao = new MyPageJoinDAO();
+		int totalCount = dao.finishVolunTotal(userNo);
+		
+		BasePagenation pagenation = new BasePagenation(page, totalCount);
 
 		Map<String, Object> pageMap = new HashMap<>();
 		pageMap.put("userNo", userNo);
-		pageMap.put("startRow", (page - 1) * rowCount + 1);
-		pageMap.put("endRow", page * rowCount);
+		pageMap.put("limit", pagenation.getLimit());
+		pageMap.put("offset", pagenation.getOffset());
 
-		MyPageJoinDAO dao = new MyPageJoinDAO();
 		List<MyPageJoinDTO> finishVol = dao.finishVolunPage(pageMap);
-		int totalCount = dao.finishVolunTotal(userNo);
-		int lastPage = (int) Math.ceil(totalCount / (double) rowCount);
+		int lastPage = pagenation.getEndPage();
 
 		request.setAttribute("finishVol", finishVol);
 		request.setAttribute("page", page);
