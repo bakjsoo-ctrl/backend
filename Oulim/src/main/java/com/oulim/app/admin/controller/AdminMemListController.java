@@ -43,13 +43,17 @@ public class AdminMemListController implements Execute {
 		
         int rowCount = 10;
         int pageCount = 10;
-        int startRow = (page - 1) * rowCount + 1;
-        int endRow = startRow + rowCount - 1;
-
+//        int startRow = (page - 1) * rowCount + 1;
+//        int endRow = startRow + rowCount - 1;
+        int offset = (page - 1) * rowCount;
+        
         dto.setSearchType(searchType);
         dto.setKeyword(keyword);
-        dto.setStartRow(startRow);
-        dto.setEndRow(endRow);
+//        dto.setStartRow(startRow);
+//        dto.setEndRow(endRow);
+        dto.setPageSize(rowCount);
+        dto.setOffset(offset);
+        
 
         List<AdminMemListDTO> memberList = adminMemDAO.selectList(dto);
 
