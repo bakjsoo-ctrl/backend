@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.common.util.DefineType;
 import com.oulim.app.community.dao.CommunityDAO;
 import com.oulim.app.community.dto.CommunityPostJoinDTO;
@@ -32,13 +33,22 @@ public class CommunityListOkController implements Execute {
 		String temp = request.getParameter("page");
 		int page = (temp == null) ? 1 : Integer.valueOf(temp);
 		if(page <1) page = 1;
+		
+		Map<String,Object> searchMap = new HashMap<>();
+		searchMap.put("searchType", searchType);
+		searchMap.put("keyword", keyword);
+		System.out.println("searchMap" + searchMap);
+		int total = commuDAO.getPostTotal(searchMap);
+		System.out.println("게시글 총 갯수 : " + total); 
+		
+		BasePagenation pagenation = new BasePagenation(page, total ); 
 
-		int startRow = (page - 1) * DefineType.ROWCOUNT_PER_PAGE + 1;
-		int endRow = startRow + DefineType.ROWCOUNT_PER_PAGE - 1;
+		int limit = pagenation.getLimit();
+		int offset = pagenation.getOffset();
 
 		Map<String, Object> pageMap = new HashMap<>();
-		pageMap.put("startRow", startRow);
-		pageMap.put("endRow", endRow);
+		pageMap.put("limit", limit);
+		pageMap.put("offset", offset);
 		pageMap.put("searchType", searchType);
 		pageMap.put("keyword", keyword);
 
@@ -51,21 +61,15 @@ public class CommunityListOkController implements Execute {
 		request.setAttribute("searchType", searchType);
 		request.setAttribute("keyword", keyword);
 		
-		Map<String,Object> searchMap = new HashMap<>();
-		searchMap.put("searchType", searchType);
-		searchMap.put("keyword", keyword);
-		System.out.println("searchMap" + searchMap);
-		int total = commuDAO.getPostTotal(searchMap);
-		System.out.println("게시글 총 갯수 : " + total); 
-		int realEndPage = (int) (Math.ceil(total / (double) DefineType.ROWCOUNT_PER_PAGE));
-		int endPage = (int) (Math.ceil(page / (double) DefineType.MAX_PAGE_COUNT) * DefineType.MAX_PAGE_COUNT);
+		int realEndPage = pagenation.getRealEndPage();
+		int endPage = pagenation.getEndPage();
 		
-		int startPage = endPage - (DefineType.MAX_PAGE_COUNT - 1);
+		int startPage = pagenation.getStartPage();
 		
-		endPage = Math.min(endPage,  realEndPage);
+//		endPage = Math.min(endPage,  realEndPage);
 		
-		boolean prev = startPage > 1;
-		boolean next = endPage < realEndPage;
+		boolean prev = pagenation.getIsPrev();
+		boolean next = pagenation.getIsNext();
 		
 		request.setAttribute("page", page);
 		request.setAttribute("startPage", startPage);

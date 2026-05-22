@@ -21,9 +21,6 @@ public class DefineType {
 	public static final int DB_PROBLEM = 101;
 	public static final int LACK_OF_CURRENCY = 102;
 	
-	// 페이지 당 행 갯수 선언
-	public static final int ROWCOUNT_PER_PAGE = 10;
-	public static final int MAX_PAGE_COUNT=10;
 	
 	// 쿨타임
 	public static final long COOLTIME = 60_000;
