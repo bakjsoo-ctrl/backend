@@ -42,7 +42,7 @@ public class VolunManageDetailController implements Execute {
 
 		// MySQL LIMIT용 페이징
 		int offset = (page - 1) * rowCount;
-		int pageSize = rowCount;
+		int limit = rowCount;
 
 		int totalCount = volunteerMangementDAO.selectApplyCount(volunActNo);
 		int lastPage = (totalCount + rowCount - 1) / rowCount;
@@ -50,7 +50,7 @@ public class VolunManageDetailController implements Execute {
 		Map<String, Integer> pageMap = new HashMap<String, Integer>();
 		pageMap.put("volunActNo", volunActNo);
 		pageMap.put("offset", offset);
-		pageMap.put("pageSize", pageSize);
+		pageMap.put("limit", limit);
 
 		VolunActivityDTO volunDetail = volunteerMangementDAO.selectVolManageDetail(volunActNo);
 		List<VolunApplyDTO> applyList = volunteerMangementDAO.applyVolSelectPage(pageMap);

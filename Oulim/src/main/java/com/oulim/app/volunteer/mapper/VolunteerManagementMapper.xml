@@ -63,7 +63,7 @@
 		WHERE A.VOLUN_ACT_NO = #{volunActNo}
 		  AND A.VOLUNACT_APPLYSTATUS IN (1, 9)
 		ORDER BY A.VOLUNACT_APPLYDATE DESC
-		LIMIT #{offset}, #{pageSize}
+		LIMIT #{offset}, #{limit}
 	</select>
 
 	<!-- 포인트 지급 -->

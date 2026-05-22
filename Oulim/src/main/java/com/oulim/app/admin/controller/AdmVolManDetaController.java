@@ -13,7 +13,6 @@ import com.oulim.app.admin.dao.AdmVolunDetaDAO;
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
 import com.oulim.app.common.util.BasePagenation;
-import com.oulim.app.common.util.DefineType;
 import com.oulim.app.volunteer.dao.VolunteerMangementDAO;
 import com.oulim.app.volunteer.dto.VolunActivityDTO;
 import com.oulim.app.volunteer.dto.VolunApplyDTO;
@@ -93,16 +92,15 @@ public class AdmVolManDetaController implements Execute {
             page = 1;
         }
 
-		int startRow = (page - 1) * BasePagenation.ROWCOUNT_PER_PAGE + 1;
-		int endRow = startRow + BasePagenation.ROWCOUNT_PER_PAGE - 1;
+        BasePagenation pagenation = new BasePagenation(page, applyCount);
+        int limit = pagenation.getLimit();
+        int offset = pagenation.getOffset();
 
-		detail.setStartRow(startRow);
-		detail.setEndRow(endRow);
-        
-        int total = applyCount;
+		detail.setStartRow(limit);
+		detail.setEndRow(offset);
 
-       int realEndPage = (int) (Math.ceil(total / (double) BasePagenation.ROWCOUNT_PER_PAGE));
-       int endPage = (int) (Math.ceil(page / (double) BasePagenation.MAX_PAGE_COUNT) * BasePagenation.MAX_PAGE_COUNT);
+       int realEndPage = pagenation.getRealEndPage();
+       int endPage = pagenation.getEndPage();
        
        int startPage = endPage - (BasePagenation.MAX_PAGE_COUNT - 1);
        
@@ -115,8 +113,8 @@ public class AdmVolManDetaController implements Execute {
         // =========================
         Map<String, Integer> pageMap = new HashMap<>();
         pageMap.put("volunActNo", volunActNo);
-        pageMap.put("startRow", startRow);
-        pageMap.put("endRow", endRow);
+        pageMap.put("limit", limit);
+        pageMap.put("offset", offset);
 
         List<VolunApplyDTO> volunList = volunDAO.applyVolSelectPage(pageMap);
 
