@@ -45,11 +45,20 @@ public class AdmVolManController implements Execute {
         int page = (temp == null) ? 1 : Integer.valueOf(temp);
 		if(page <1) page = 1;
 
-		int startRow = (page - 1) * DefineType.ROWCOUNT_PER_PAGE + 1;
-		int endRow = startRow + DefineType.ROWCOUNT_PER_PAGE - 1;
-
-        dto.setStartRow(startRow);
-        dto.setEndRow(endRow);
+//		int startRow = (page - 1) * DefineType.ROWCOUNT_PER_PAGE + 1;
+//		int endRow = startRow + DefineType.ROWCOUNT_PER_PAGE - 1;
+//
+//        dto.setStartRow(startRow);
+//        dto.setEndRow(endRow);
+		
+		int offset = (page - 1) * DefineType.ROWCOUNT_PER_PAGE;
+		dto.setPageSize(DefineType.ROWCOUNT_PER_PAGE);
+		dto.setOffset(offset);
+		
+		
+		
+		
+		
         
         int total = dao.selectAdminVolunCount(dto);
 

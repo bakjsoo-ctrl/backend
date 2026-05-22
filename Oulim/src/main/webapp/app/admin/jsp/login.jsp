@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 pageEncoding="UTF-8"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 <!doctype html>
 <html lang="ko">
   <head>
@@ -33,10 +34,20 @@ pageEncoding="UTF-8"%>
       rel="stylesheet"
       href="${pageContext.request.contextPath}/app/admin/css/login.css"
     />
+
+      <script>
+      const contextPath = "${pageContext.request.contextPath}";
+    </script>
+
     <script
       defer
       src="${pageContext.request.contextPath}/app/admin/js/login.js"
     ></script>
+    
+
+    
+ 
+    
   </head>
   <body>
     <main class="l-main">
