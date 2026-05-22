@@ -87,7 +87,7 @@
         </where>
 
         ORDER BY VA.Volun_Act_No DESC
-        LIMIT #{pageSize} OFFSET #{offset}
+        LIMIT #{startRow} OFFSET #{endRow}
     </select>
 
 

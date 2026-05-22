@@ -22,7 +22,7 @@
         WHERE U.USER_TYPE = 2
           AND U.USER_STATUS = 2
         ORDER BY U.USER_NO DESC
-        LIMIT #{pageSize} OFFSET #{offset}
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
 

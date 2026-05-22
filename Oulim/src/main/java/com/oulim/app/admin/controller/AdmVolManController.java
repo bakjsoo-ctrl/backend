@@ -49,22 +49,30 @@ public class AdmVolManController implements Execute {
 		
 		BasePagenation pagenation = new BasePagenation(page, total);
 
-		int startRow = (page - 1) * BasePagenation.ROWCOUNT_PER_PAGE + 1;
-		int endRow = startRow + BasePagenation.ROWCOUNT_PER_PAGE - 1;
+//		int startRow = (page - 1) * BasePagenation.ROWCOUNT_PER_PAGE + 1;
+//		int endRow = startRow + BasePagenation.ROWCOUNT_PER_PAGE - 1;
+		
+		int limit = pagenation.getLimit();
+		int offset = pagenation.getOffset();
 
-        dto.setStartRow(startRow);
-        dto.setEndRow(endRow);
+        dto.setStartRow(limit);
+        dto.setEndRow(offset);
         
 
-       int realEndPage = (int) (Math.ceil(total / (double) BasePagenation.ROWCOUNT_PER_PAGE));
-       int endPage = (int) (Math.ceil(page / (double) BasePagenation.MAX_PAGE_COUNT) * BasePagenation.MAX_PAGE_COUNT);
+//       int realEndPage = (int) (Math.ceil(total / (double) BasePagenation.ROWCOUNT_PER_PAGE));
+//       int endPage = (int) (Math.ceil(page / (double) BasePagenation.MAX_PAGE_COUNT) * BasePagenation.MAX_PAGE_COUNT);
+//       int startPage = endPage - (BasePagenation.MAX_PAGE_COUNT - 1);
+//       endPage = Math.min(endPage,  realEndPage);
+        
+//       boolean prev = startPage > 1;
+//       boolean next = endPage < realEndPage;
+       int realEndPage = pagenation.getRealEndPage();
+       int endPage = pagenation.getEndPage();
        
-       int startPage = endPage - (BasePagenation.MAX_PAGE_COUNT - 1);
+       int startPage = pagenation.getStartPage();
        
-       endPage = Math.min(endPage,  realEndPage);
-       
-       boolean prev = startPage > 1;
-       boolean next = endPage < realEndPage;
+       boolean prev = pagenation.getIsPrev();
+       boolean next = pagenation.getIsNext();
        
         // =========================
         // 3. DB 조회

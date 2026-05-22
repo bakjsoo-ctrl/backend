@@ -46,7 +46,6 @@ public class AdminPostListController implements Execute{
 		AdminPostDAO adminPostDAO = new AdminPostDAO();
 		Map<String, Object> pageMap = new HashMap<>();
 
-		List<CommunityPostJoinDTO> postList = adminPostDAO.selectList(pageMap);
 		int total = adminPostDAO.getTotal(pageMap);
         
 		BasePagenation pagenation = new BasePagenation(page,total);
@@ -56,10 +55,11 @@ public class AdminPostListController implements Execute{
 		pageMap.put("searchType", searchType);
 		pageMap.put("keyword", keyword);
 		
+		List<CommunityPostJoinDTO> postList = adminPostDAO.selectList(pageMap);
+		
 		int realEndPage = pagenation.getRealEndPage();
 		int endPage = pagenation.getEndPage();
 		int startPage = pagenation.getStartPage();
-		endPage = Math.min(endPage, realEndPage);
 		
 		request.setAttribute("postList", postList);
 		request.setAttribute("page", page);
