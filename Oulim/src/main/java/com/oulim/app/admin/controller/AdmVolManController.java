@@ -11,7 +11,6 @@ import com.oulim.app.admin.dao.AdmVolMangDAO;
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
 import com.oulim.app.common.util.BasePagenation;
-import com.oulim.app.common.util.DefineType;
 import com.oulim.app.volunteer.dto.VolunActivityDTO;
 
 public class AdmVolManController implements Execute {
@@ -44,6 +43,13 @@ public class AdmVolManController implements Execute {
         // 페이징 (임시)
 		String temp = request.getParameter("page");
         int page = (temp == null) ? 1 : Integer.valueOf(temp);
+		if(page <1) page = 1;
+
+//		int startRow = (page - 1) * DefineType.ROWCOUNT_PER_PAGE + 1;
+//		int endRow = startRow + DefineType.ROWCOUNT_PER_PAGE - 1;
+//
+//        dto.setStartRow(startRow);
+//        dto.setEndRow(endRow);
         int total = dao.selectAdminVolunCount(dto);
 		if(page <1) page = 1;
 		
@@ -66,7 +72,6 @@ public class AdmVolManController implements Execute {
         
 //       boolean prev = startPage > 1;
 //       boolean next = endPage < realEndPage;
-       int realEndPage = pagenation.getRealEndPage();
        int endPage = pagenation.getEndPage();
        
        int startPage = pagenation.getStartPage();

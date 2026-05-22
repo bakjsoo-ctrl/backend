@@ -8,7 +8,7 @@ const errorBox = document.getElementById("is-user-login-error");
 toggleBtn.addEventListener("click", function () {
   if (adminPw.type === "password") {
     adminPw.type = "text";
-    pwEye.src = "/Oulim/asset/image/user/password-on.png";
+    pwEye.src = contextPath + "/asset/image/user/password-on.png";
   } else {
     adminPw.type = "password";
     pwEye.src = "/Oulim/asset/image/user/password-off.png";
