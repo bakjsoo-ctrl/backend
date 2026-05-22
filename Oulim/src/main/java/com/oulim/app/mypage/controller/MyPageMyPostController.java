@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.mypage.dao.MyPageJoinDAO;
 import com.oulim.app.mypage.dto.MyPageJoinDTO;
 
@@ -36,31 +37,28 @@ public class MyPageMyPostController implements Execute {
         // 현재 페이지
         String temp = request.getParameter("page");
         int page = (temp == null) ? 1 : Integer.parseInt(temp);
-
-        int rowCount = 10; // 한 페이지 게시글 수
-        int startRow = (page - 1) * rowCount + 1;
-        int endRow = page * rowCount;
-
+        int total = mypageDAO.getMyPostTotal(userNo);
+        BasePagenation pagenation = new BasePagenation(page, total);
+        pagenation.setLowerMaxPageCount(5);
         Map<String, Object> map = new HashMap<>();
-        map.put("startRow", startRow);
-        map.put("endRow", endRow);
+        map.put("limit", pagenation.getLimit());
+        map.put("offset", pagenation.getOffset());
         map.put("userNo", userNo);
 
         List<MyPageJoinDTO> mypost = mypageDAO.viewMyPost(map);
-        int total = mypageDAO.getMyPostTotal(userNo);
 
-        boolean showPagination = total > rowCount; // 10개 이하이면 숨김
+        boolean showPagination = total > pagenation.ROWCOUNT_PER_PAGE; // 10개 이하이면 숨김
 
         // 페이지 블록 단위
-        int pageCount = 5; 
-        int startPage = ((page - 1) / pageCount) * pageCount + 1;
-        int endPage = startPage + pageCount - 1;
+        
+        int startPage = pagenation.getStartPage();
+        int endPage = pagenation.getEndPage();
 
-        int realEndPage = (int)Math.ceil(total / (double)rowCount);
+        int realEndPage = pagenation.getRealEndPage();
         if (endPage > realEndPage) endPage = realEndPage;
 
-        boolean prev = startPage > 1;  // 이전 블록
-        boolean next = endPage < realEndPage; // 다음 블록
+        boolean prev = pagenation.getIsPrev();  // 이전 블록
+        boolean next = pagenation.getIsNext(); // 다음 블록
 
         boolean hasPrevPage = page > 1; // 이전 페이지
         boolean hasNextPage = page < realEndPage; // 다음 페이지

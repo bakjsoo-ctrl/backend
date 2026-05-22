@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import com.oulim.app.common.controller.Execute;
 import com.oulim.app.common.controller.Result;
+import com.oulim.app.common.util.BasePagenation;
 import com.oulim.app.mypage.dao.MyPageJoinDAO;
 import com.oulim.app.mypage.dto.MyPageJoinDTO;
 
@@ -46,21 +47,24 @@ public class MyPagePointController implements Execute {
 
         // 적립 포인트
         int plusTotal = dao.plusTotal(userNo);
-        int plusLastPage = (int) Math.ceil(plusTotal / (double) rowCount);
+        BasePagenation plusPagenation = new BasePagenation(plusPage, plusTotal);
+        int plusLastPage = plusPagenation.getEndPage();
 
         Map<String, Object> plusMap = new HashMap<>();
-        plusMap.put("startRow", (plusPage - 1) * rowCount + 1);
-        plusMap.put("endRow", plusPage * rowCount);
+        plusMap.put("limit", plusPagenation.getLimit());
+        plusMap.put("offset", plusPagenation.getOffset());
         plusMap.put("userNo", userNo);
         List<MyPageJoinDTO> plusPoint = dao.plusPoint(plusMap);
 
         // 사용 포인트
         int minusTotal = dao.minusTotal(userNo);
-        int minusLastPage = (int) Math.ceil(minusTotal / (double) rowCount);
+        
+        BasePagenation minusPagenation = new BasePagenation(minusPage, minusTotal);
+        int minusLastPage = minusPagenation.getEndPage();
 
         Map<String, Object> minusMap = new HashMap<>();
-        minusMap.put("startRow", (minusPage - 1) * rowCount + 1);
-        minusMap.put("endRow", minusPage * rowCount);
+        minusMap.put("limit", minusPagenation.getLimit());
+        minusMap.put("offset", minusPagenation.getOffset());
         minusMap.put("userNo", userNo);
         List<MyPageJoinDTO> minusPoint = dao.minusPoint(minusMap);
 
